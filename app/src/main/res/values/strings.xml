@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FinancialCompanion</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="login">Login</string>
+    <string name="user_name">Name</string>
+    <string name="user_email">Email</string>
+    <string name="user_username">Username</string>
+    <string name="user_password">Password</string>
+    <string name="redirect_login">Already have an account? Login</string>
+    <string name="redirect_signup">Don\'t have an account? Sign Up</string>
+</resources>

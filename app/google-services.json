@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "693470448378",
+    "firebase_url": "https://financialcompanion-b6922-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "financialcompanion-b6922",
+    "storage_bucket": "financialcompanion-b6922.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:693470448378:android:08aa707b1df011e4015743",
+        "android_client_info": {
+          "package_name": "com.example.financialcompanion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD64IKJlsg9ncqepX8o_Ga51K5RUiVkCpw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
