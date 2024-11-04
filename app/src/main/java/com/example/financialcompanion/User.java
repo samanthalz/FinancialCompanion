@@ -1,22 +1,36 @@
 package com.example.financialcompanion;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class User {
 
-    String name, email, username, password;
+    String uid, name, email, username;
+    private boolean isFirstTimeUser; // Flag for first-time user
+    private Map<String, Account> accounts; // List of accounts
 
     public User() {
+        accounts = new HashMap<>(); // Initialize the list of accounts
+        this.isFirstTimeUser = true; // Default to true for new users
     }
 
-    public User(String name, String email, String username, String password) {
+    public User(String name, String email, String username) {
         this.name = name;
         this.email = email;
         this.username = username;
-        this.password = password;
+        this.accounts = new HashMap<>(); // Initialize the list of accounts
+        this.isFirstTimeUser = true; // Default to true for new users
     }
 
-    public String getName() {
-        return name;
+    public String getUid() {return uid;}
+
+    public void setUid(String name) {
+        this.uid = uid;
     }
+
+    public String getName() {return name;}
 
     public void setName(String name) {
         this.name = name;
@@ -38,11 +52,19 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean isFirstTimeUser() {
+        return isFirstTimeUser;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setFirstTimeUser(boolean firstTimeUser) {
+        isFirstTimeUser = firstTimeUser;
+    }
+
+    public Map<String, Account> getAccounts() {
+        return accounts; // Return the accounts map
+    }
+
+    public void addAccount(Account account) {
+        accounts.put(account.getId(), account); // Add the account with its ID as the key
     }
 }

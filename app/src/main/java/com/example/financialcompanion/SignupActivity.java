@@ -10,22 +10,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.splashscreen.SplashScreen;
+import androidx.media3.common.util.UnstableApi;
 
-import com.google.firebase.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity {
 
+    private static final String TAG = SignupActivity.class.getSimpleName();
+
     EditText signupName, signupEmail, signupUsername, signupPassword;
     TextView loginRedirectText;
     Button signupButton;
-    FirebaseDatabase database;
-    DatabaseReference reference;
+    FirebaseAuth auth = FirebaseAuth.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,32 +43,52 @@ public class SignupActivity extends AppCompatActivity {
         loginRedirectText = findViewById(R.id.loginRedirectText);
 
 
-
         signupButton.setOnClickListener(new View.OnClickListener() {
+            @OptIn(markerClass = UnstableApi.class)
             @Override
             public void onClick(View view) {
                 if (!validateField(signupName, "name") |
                         !validateField(signupEmail, "email") |
                         !validateField(signupUsername, "username") |
                         !validateField(signupPassword, "password")) {
-                    return;  // Stop the process if any validation fails
+                    // Show error messages to user based on validation failures
+                    return;
                 }
-
-                database = FirebaseDatabase.getInstance();
-                reference = database.getReference("users");
 
                 String name = signupName.getText().toString().trim();
                 String email = signupEmail.getText().toString().trim();
                 String username = signupUsername.getText().toString().trim();
                 String password = signupPassword.getText().toString().trim();
 
-                // Proceed to register the user if all fields are valid
-                User user = new User(name, email, username, password);
-                reference.child(username).setValue(user);
-
-                Toast.makeText(SignupActivity.this, "You have signed up successfully!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                startActivity(intent);
+                auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                FirebaseUser user = auth.getCurrentUser();
+                                if (user != null) {
+                                    // Send verification email
+                                    user.sendEmailVerification()
+                                            .addOnCompleteListener(verificationTask -> {
+                                                if (verificationTask.isSuccessful()) {
+                                                    androidx.media3.common.util.Log.d(TAG, "Verification email sent to " + user.getEmail());
+                                                    Intent intent = new Intent(SignupActivity.this, EmailVerificationActivity.class);
+                                                    intent.putExtra("email", email);
+                                                    intent.putExtra("name", name);
+                                                    intent.putExtra("username", username);
+                                                    startActivity(intent);
+                                                    finish();
+                                                } else {
+                                                    androidx.media3.common.util.Log.e(TAG, "sendEmailVerification failed!", verificationTask.getException());
+                                                    // Display error message to the user
+                                                    Toast.makeText(SignupActivity.this, "Failed to send verification email. Please try again.", Toast.LENGTH_SHORT).show();
+                                                    // You might want to add more detailed error handling based on the exception
+                                                }
+                                            });
+                                }
+                            } else {
+                                // Handle registration error (e.g., display user-friendly error message)
+                                Log.w(TAG, "createUserWithEmailAndPassword:failure", task.getException());
+                            }
+                        });
             }
         });
 
@@ -90,7 +112,7 @@ public class SignupActivity extends AppCompatActivity {
                 }
                 break;
             case "email":
-                String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+                String emailPattern = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}";
                 if (val.isEmpty()) {
                     field.setError("Email cannot be empty");
                     return false;

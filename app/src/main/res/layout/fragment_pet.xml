@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <ImageView
+        android:id="@+id/myVectorImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pet_bg" />
+
+    <include
+        layout="@layout/custom_pet_coin_menu" />
+
+    <Button
+        android:id="@+id/gradientStoreButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="42dp"
+        android:layout_marginTop="640dp"
+        android:background="@drawable/pet_gradient_btn"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:insetBottom="6dp"
+        android:padding="24dp"
+        android:visibility="visible"
+        app:backgroundTint="@null"
+        app:icon="@drawable/baseline_storefront_24"
+        app:iconSize="30dp" />
+
+    <Button
+        android:id="@+id/gradientCupboardButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="42dp"
+        android:layout_marginTop="640dp"
+        android:background="@drawable/pet_gradient_btn"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:insetBottom="6dp"
+        android:padding="24dp"
+        android:visibility="visible"
+        app:backgroundTint="@null"
+        app:icon="@drawable/baseline_checkroom_24"
+        app:iconSize="30dp" />
+
+</RelativeLayout>

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,13 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FinancialCompanion"
-        tools:targetApi="31">
+        tools:targetApi="34">
         <activity
-            android:name=".LoginActivity"
+            android:name=".SavingsEntryActivity"
             android:exported="false" />
         <activity
-            android:name=".SignupActivity"
-            android:exported="true">
+            android:name=".EmailVerificationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_email_verification" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,14 +31,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"/>
     </application>
-
 </manifest>

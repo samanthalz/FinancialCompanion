@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.financialcompanion.HomeFragment"
+        tools:layout="@layout/fragment_home">
+    </fragment>
+
+    <fragment
+        android:id="@+id/coursesFragment"
+        android:name="com.example.financialcompanion.CoursesFragment"
+        tools:layout="@layout/fragment_courses">
+    </fragment>
+
+    <fragment
+        android:id="@+id/petFragment"
+        android:name="com.example.financialcompanion.PetFragment"
+        tools:layout="@layout/fragment_pet">
+    </fragment>
+
+    <fragment
+        android:id="@+id/accountFragment"
+        android:name="com.example.financialcompanion.AccountFragment"
+        tools:layout="@layout/fragment_account">
+    </fragment>
+    <fragment
+        android:id="@+id/expenseFragment"
+        android:name="com.example.financialcompanion.ExpenseFragment"
+        android:label="fragment_expense"
+        tools:layout="@layout/fragment_expense" />
+    <fragment
+        android:id="@+id/incomeFragment"
+        android:name="com.example.financialcompanion.IncomeFragment"
+        android:label="fragment_income"
+        tools:layout="@layout/fragment_income" />
+    <fragment
+        android:id="@+id/transactionFragment"
+        android:name="com.example.financialcompanion.TransactionFragment"
+        android:label="fragment_transaction"
+        tools:layout="@layout/fragment_transaction" >
+        <action
+            android:id="@+id/action_transactionFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:launchSingleTop="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.example.financialcompanion.ChangePasswordFragment"
+        android:label="Change Password"
+        tools:layout="@layout/fragment_change_password" />
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.financialcompanion.EditProfileFragment"
+        android:label="fragment_edit_profile"
+        tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/manageAccountsFragment"
+        android:name="com.example.financialcompanion.ManageAccountsFragment"
+        android:label="fragment_manage_accounts"
+        tools:layout="@layout/fragment_manage_accounts" />
+
+
+</navigation>
