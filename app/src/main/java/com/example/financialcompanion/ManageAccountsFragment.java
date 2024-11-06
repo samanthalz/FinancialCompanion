@@ -1,5 +1,7 @@
 package com.example.financialcompanion;
 
+import static androidx.navigation.fragment.FragmentKt.findNavController;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -12,9 +14,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -36,6 +47,7 @@ public class ManageAccountsFragment extends Fragment {
     private AccountAdapter accountAdapter;
     private List<Account> accountList;
     private SharedViewModel accountViewModel;
+    private NavController navController;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -44,6 +56,7 @@ public class ManageAccountsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_manage_accounts, container, false);
 
         accountViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
 
         // Initialize the RecyclerView
         accountRecyclerView = view.findViewById(R.id.account_recycler_view);
@@ -59,48 +72,6 @@ public class ManageAccountsFragment extends Fragment {
             accountAdapter.notifyItemInserted(accountList.size() - 1);
         });
 
-        fetchLatestAccounts();
-
-//        // Reference to Firebase database
-//        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-//        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-//
-//        // Query the database for the "Savings" account
-//        databaseReference.child(userId).child("accounts").orderByChild("accountName").equalTo("Savings")
-//                .addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @SuppressLint("NotifyDataSetChanged")
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if (snapshot.exists()) {
-//                            // If the "Savings" account exists, retrieve the balance
-//                            for (DataSnapshot accountSnapshot : snapshot.getChildren()) {
-//                                String accId = accountSnapshot.getKey();
-//                                Double balance = accountSnapshot.child("balance").getValue(Double.class);
-//
-//                                // Set balance to 0.0 if it's null
-//                                if (balance == null) {
-//                                    balance = 0.0;
-//                                }
-//
-//                                // Create an Account object and add it to the list
-//                                Account savingsAccount = new Account(accId,"Savings", balance, R.drawable.finance_bank_piggy_business_money_icon);
-//                                accountList.add(0, savingsAccount);
-//                                accountAdapter.notifyDataSetChanged();
-//
-//                                // Observe account data
-//                                accountViewModel.getAccounts().observe(getViewLifecycleOwner(), accounts -> {
-//                                    accountViewModel.addAccount(savingsAccount);
-//                                });
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                        // Handle any database errors
-//                    }
-//                });
-
         Button addNewAccountButton = view.findViewById(R.id.add_account_button);
         addNewAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +84,53 @@ public class ManageAccountsFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchLatestAccounts();
+    }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Get the origin fragment info from arguments
+        String originFragment = getArguments() != null ? getArguments().getString("originFragment") : "";
+
+        // Initialize the toolbar and set the navigation icon click listener
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        AppCompatActivity activity = (AppCompatActivity) requireActivity();
+        activity.setSupportActionBar(toolbar); // Set the toolbar as the action bar
+
+        // Get the NavController for this fragment
+        NavController navController = Navigation.findNavController(view);
+
+        // Enable the Up button and set the back arrow icon
+        Objects.requireNonNull(activity.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24); // Set your back arrow icon
+
+        // Set Navigation click listener for the back button
+        toolbar.setNavigationOnClickListener(v -> {
+            Log.d("ManageAccountsFragment", "Back pressed from origin: " + originFragment);
+
+            // Check the origin fragment and navigate accordingly
+            if ("home".equals(originFragment)) {
+                // Check if the action exists in the navigation graph
+               navController.navigate(R.id.action_manageAccountsFragment_to_homeFragment);
+
+            } else if ("account".equals(originFragment)) {
+                navController.navigate(R.id.action_manageAccountsFragment_to_accountFragment);
+                    Log.d("ManageAccountsFragment", "Navigating back to AccountFragment.");
+            } else {
+                // If the origin is not specified, just go back normally
+                navController.popBackStack();
+                Log.d("ManageAccountsFragment", "Navigating back to previous fragment.");
+            }
+        });
+    }
+
 
     private void fetchLatestAccounts() {
         List<Account> accountList = new ArrayList<>();
@@ -168,6 +186,4 @@ public class ManageAccountsFragment extends Fragment {
             }
         });
     }
-
-
 }

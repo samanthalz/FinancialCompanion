@@ -1,25 +1,25 @@
 package com.example.financialcompanion;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.PieChart;
@@ -27,8 +27,6 @@ import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,14 +37,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
 
@@ -61,6 +57,9 @@ public class HomeFragment extends Fragment {
     private RecentTransactionAdapter adapter;
     private NestedScrollView financialSummaryLayout;
     private BottomNavigationView bottomNav;
+    private Button accountButton;
+    private Button goalButton;
+    private NavController navController;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -89,6 +88,9 @@ public class HomeFragment extends Fragment {
 
         incomeTextView = view.findViewById(R.id.incomeTextView);
         expenseTextView = view.findViewById(R.id.expenseTextView);
+
+        // Obtain NavController from the current fragment
+        navController = NavHostFragment.findNavController(this);
 
         return view;
     }
@@ -130,9 +132,32 @@ public class HomeFragment extends Fragment {
         recentTransactionsRecyclerView.setAdapter(adapter);
         fetchCategories(userId);
 
-
         // Load the latest transactions
         loadLatestTransactions();
+
+        accountButton = view.findViewById(R.id.acc_button);
+        accountButton.setOnClickListener(v -> openManageAccountFragment());
+
+        goalButton = view.findViewById(R.id.goal_button);
+        goalButton.setOnClickListener(v -> openGoalsFragment());
+    }
+
+    private void openGoalsFragment() {
+        // Create a Bundle to pass the origin argument
+        Bundle args = new Bundle();
+        args.putString("originFragment", "home");  // Add the origin fragment info
+
+        // Use NavController to navigate, passing the arguments
+        navController.navigate(R.id.action_homeFragment_to_goalsFragment, args);
+    }
+
+    private void openManageAccountFragment() {
+        // Create a Bundle to pass the origin argument
+        Bundle args = new Bundle();
+        args.putString("originFragment", "home");  // Add the origin fragment info
+
+        // Use NavController to navigate, passing the arguments
+        navController.navigate(R.id.action_homeFragment_to_manageAccountsFragment, args);
     }
 
     private void fetchCategories(String userId) {

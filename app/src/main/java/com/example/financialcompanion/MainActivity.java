@@ -2,6 +2,8 @@ package com.example.financialcompanion;
 
 import static android.content.ContentValues.TAG;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -84,24 +87,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller,
-                                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                Log.d("Navigation", "Destination ID: " + destination.getId() +
-                        " (" + getResources().getResourceEntryName(destination.getId()) + ")");
-
-                if(destination.getId() == R.id.transaction_fragment) {
-                    bottomNavigationView.setVisibility(View.GONE);
-                } else {
-                    bottomNavigationView.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
         // Check if the user is a first-time user
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         checkIfFirstTimeUser(userId);
+
+        // Add OnDestinationChangedListener to the NavController
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                restoreUIVisibility();
+            }
+        });
+    }
+
+
+    private void restoreUIVisibility() {
+        // Ensure UI elements are visible when navigating back or up
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        binding.bottomAppBar.setVisibility(View.VISIBLE);
+        binding.fabAdd.setVisibility(View.VISIBLE);
+        if (findViewById(R.id.financial_summary_layout) != null) {
+            findViewById(R.id.financial_summary_layout).setVisibility(View.VISIBLE);
+        }
     }
 
     private void checkIfFirstTimeUser(String userId) {
@@ -150,28 +157,93 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dialog.dismiss();
 
-                // Create an instance of TransactionFragment
-                TransactionFragment transactionFragment = new TransactionFragment();
+                // Get the current fragment's ID dynamically
+                int currentFragmentId = Objects.requireNonNull(navController.getCurrentDestination()).getId();
+                String originFragment = "";
 
-                // Get the FragmentManager and start a transaction
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                // Determine the current fragment and set the origin accordingly
+                if (currentFragmentId == R.id.homeFragment) {
+                    originFragment = "home";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_homeFragment_to_transactionFragment, bundle);
+                } else if (currentFragmentId == R.id.coursesFragment) {
+                    originFragment = "courses";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_coursesFragment_to_transactionFragment, bundle);
+                } else if (currentFragmentId == R.id.petFragment) {
+                    originFragment = "pet";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_petFragment_to_transactionFragment, bundle);
+                } else if (currentFragmentId == R.id.accountFragment) {
+                    originFragment = "account";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_accountFragment_to_transactionFragment, bundle);
+                } else {
+                    Log.e("MainActivity", "No valid action to navigate to TransactionFragment");
+                }
 
-                bottomNavigationView.setVisibility(View.GONE);
+                // Hide UI elements after navigation
+                if (bottomNavigationView != null) {
+                    bottomNavigationView.setVisibility(View.GONE);
+                }
                 binding.bottomAppBar.setVisibility(View.GONE);
                 binding.fabAdd.setVisibility(View.GONE);
-                findViewById(R.id.financial_summary_layout).setVisibility(View.GONE); // Hide financial summary
-
-                // Replace the current fragment with TransactionFragment
-                fragmentTransaction.replace(R.id.nav_host_fragment, transactionFragment);
-
-                // Optional: Add the transaction to the back stack
-                fragmentTransaction.addToBackStack(null);
-
-                // Commit the transaction
-                fragmentTransaction.commit();
+                if (findViewById(R.id.financial_summary_layout) != null) {
+                    findViewById(R.id.financial_summary_layout).setVisibility(View.GONE);
+                }
             }
         });
+
+        goalLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+
+                // Get the current fragment's ID dynamically
+                int currentFragmentId = Objects.requireNonNull(navController.getCurrentDestination()).getId();
+                String originFragment = "";
+
+                // Determine the current fragment and set the origin accordingly
+                if (currentFragmentId == R.id.homeFragment) {
+                    originFragment = "home";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_homeFragment_to_addGoalFragment, bundle);
+                } else if (currentFragmentId == R.id.coursesFragment) {
+                    originFragment = "courses";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_coursesFragment_to_addGoalFragment, bundle);
+                } else if (currentFragmentId == R.id.petFragment) {
+                    originFragment = "pet";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_petFragment_to_addGoalFragment, bundle);
+                } else if (currentFragmentId == R.id.accountFragment) {
+                    originFragment = "account";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_accountFragment_to_addGoalFragment, bundle);
+                } else {
+                    Log.e("MainActivity", "No valid action to navigate to AddGoalFragment");
+                }
+
+                // Hide UI elements after navigation
+                if (bottomNavigationView != null) {
+                    bottomNavigationView.setVisibility(View.GONE);
+                }
+                binding.bottomAppBar.setVisibility(View.GONE);
+                binding.fabAdd.setVisibility(View.GONE);
+                if (findViewById(R.id.financial_summary_layout) != null) {
+                    findViewById(R.id.financial_summary_layout).setVisibility(View.GONE);
+                }
+            }
+        });
+
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

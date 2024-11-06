@@ -14,6 +14,8 @@ public class Account {
         this.icon_id = icon_id;
     }
 
+    public Account() {}
+
     // Getters
     public String getId() {
         return acc_id;                    // Getter for account ID

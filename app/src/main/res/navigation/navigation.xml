@@ -9,35 +9,71 @@
         android:id="@+id/homeFragment"
         android:name="com.example.financialcompanion.HomeFragment"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_manageAccountsFragment"
+            app:destination="@id/manageAccountsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_transactionFragment"
+            app:destination="@id/transactionFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_goalsFragment"
+            app:destination="@id/goalsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_addGoalFragment"
+            app:destination="@id/addGoalFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_goalsFragment2"
+            app:destination="@id/goalsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/coursesFragment"
         android:name="com.example.financialcompanion.CoursesFragment"
         tools:layout="@layout/fragment_courses">
+        <action
+            android:id="@+id/action_coursesFragment_to_transactionFragment"
+            app:destination="@id/transactionFragment" />
+        <action
+            android:id="@+id/action_coursesFragment_to_addGoalFragment"
+            app:destination="@id/addGoalFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/petFragment"
         android:name="com.example.financialcompanion.PetFragment"
         tools:layout="@layout/fragment_pet">
+        <action
+            android:id="@+id/action_petFragment_to_transactionFragment"
+            app:destination="@id/transactionFragment" />
+        <action
+            android:id="@+id/action_petFragment_to_addGoalFragment"
+            app:destination="@id/addGoalFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/accountFragment"
         android:name="com.example.financialcompanion.AccountFragment"
         tools:layout="@layout/fragment_account">
+        <action
+            android:id="@+id/action_accountFragment_to_transactionFragment"
+            app:destination="@id/transactionFragment" />
+        <action
+            android:id="@+id/action_accountFragment_to_addGoalFragment"
+            app:destination="@id/addGoalFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/expenseFragment"
         android:name="com.example.financialcompanion.ExpenseFragment"
         android:label="fragment_expense"
         tools:layout="@layout/fragment_expense" />
+
     <fragment
         android:id="@+id/incomeFragment"
         android:name="com.example.financialcompanion.IncomeFragment"
         android:label="fragment_income"
         tools:layout="@layout/fragment_income" />
+
     <fragment
         android:id="@+id/transactionFragment"
         android:name="com.example.financialcompanion.TransactionFragment"
@@ -47,22 +83,72 @@
             android:id="@+id/action_transactionFragment_to_homeFragment"
             app:destination="@id/homeFragment"
             app:launchSingleTop="true" />
+        <action
+            android:id="@+id/action_transactionFragment_to_petFragment"
+            app:destination="@id/petFragment" />
+        <action
+            android:id="@+id/action_transactionFragment_to_coursesFragment"
+            app:destination="@id/coursesFragment" />
+        <action
+            android:id="@+id/action_transactionFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/changePasswordFragment"
         android:name="com.example.financialcompanion.ChangePasswordFragment"
         android:label="Change Password"
         tools:layout="@layout/fragment_change_password" />
+
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.financialcompanion.EditProfileFragment"
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
+
     <fragment
         android:id="@+id/manageAccountsFragment"
         android:name="com.example.financialcompanion.ManageAccountsFragment"
         android:label="Manage Accounts"
-        tools:layout="@layout/fragment_manage_accounts" />
+        tools:layout="@layout/fragment_manage_accounts" >
+
+        <action
+            android:id="@+id/action_manageAccountsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+        <action
+            android:id="@+id/action_manageAccountsFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/goalsFragment"
+        android:name="com.example.financialcompanion.GoalsFragment"
+        android:label="fragment_goals"
+        tools:layout="@layout/fragment_goals" >
+        <action
+            android:id="@+id/action_goalsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addGoalFragment"
+        android:name="com.example.financialcompanion.AddGoalFragment"
+        android:label="fragment_add_goal"
+        tools:layout="@layout/fragment_add_goal" >
+        <action
+            android:id="@+id/action_addGoalFragment_to_coursesFragment"
+            app:destination="@id/coursesFragment" />
+        <action
+            android:id="@+id/action_addGoalFragment_to_petFragment"
+            app:destination="@id/petFragment" />
+        <action
+            android:id="@+id/action_addGoalFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+        <action
+            android:id="@+id/action_addGoalFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 
 </navigation>

@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager2.widget.ViewPager2;
@@ -198,30 +199,44 @@ public class TransactionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize the Toolbar
+        // Get the origin fragment info from arguments
+        String originFragment = getArguments() != null ? getArguments().getString("originFragment") : "";
+
+        // Initialize the toolbar and set the navigation icon click listener
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) requireActivity();
         activity.setSupportActionBar(toolbar); // Set the toolbar as the action bar
 
-        // Obtain NavController
-        NavController navController = findNavController(requireActivity(), R.id.nav_host_fragment);
+        // Get the NavController for this fragment
+        NavController navController = Navigation.findNavController(view);
 
-        // Set up AppBarConfiguration with top destinations
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
+        // Enable the Up button and set the back arrow icon
+        Objects.requireNonNull(activity.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24); // Set back arrow icon
 
-        // Link the toolbar with NavController
-        NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
-
-        ActionBar actionBar= activity.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true); // Enable Up button
-            actionBar.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
-        }
-
+        // Set Navigation click listener for the back button
         toolbar.setNavigationOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), MainActivity.class);
-            startActivity(intent);
+            Log.d("TransactionFragment", "Back pressed from origin: " + originFragment);
+
+            // Check the origin fragment and navigate accordingly
+            if ("home".equals(originFragment)) {
+                navController.navigate(R.id.action_transactionFragment_to_homeFragment);
+                Log.d("TransactionFragment", "Navigating back to HomeFragment.");
+            } else if ("courses".equals(originFragment)) {
+                navController.navigate(R.id.action_transactionFragment_to_coursesFragment);
+                Log.d("TransactionFragment", "Navigating back to CoursesFragment.");
+            } else if ("pet".equals(originFragment)) {
+                navController.navigate(R.id.action_transactionFragment_to_petFragment);
+                Log.d("TransactionFragment", "Navigating back to PetFragment.");
+            } else if ("account".equals(originFragment)) {
+                navController.navigate(R.id.action_transactionFragment_to_accountFragment);
+                Log.d("TransactionFragment", "Navigating back to AccountFragment.");
+            } else {
+                // If the origin is not specified, just go back normally
+                navController.popBackStack();
+                Log.d("TransactionFragment", "Navigating back to previous fragment.");
+            }
+
         });
 
         btnDate = view.findViewById(R.id.btn_date);

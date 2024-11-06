@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/home_fragment_container">
+<androidx.core.widget.NestedScrollView
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,6 +39,7 @@
                 android:gravity="center">
 
                 <Button
+                    android:id="@+id/acc_button"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:background="@drawable/circle_background"
@@ -88,6 +94,7 @@
                 android:gravity="center">
 
                 <Button
+                    android:id="@+id/goal_button"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:background="@drawable/circle_background"
@@ -261,3 +268,4 @@
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
+</FrameLayout>

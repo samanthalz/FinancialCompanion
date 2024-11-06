@@ -49,12 +49,15 @@ public class SharedViewModel extends ViewModel {
         if (currentList != null) {
             currentList.add(newAccount);
             accounts.setValue(currentList); // Notify observers of the updated list
+            Log.d("SharedViewModel", "Account added: " + newAccount.toString());
         }
     }
 
     public void setAccounts(List<Account> newAccounts) {
         accounts.setValue(newAccounts); // Used for initial setup or bulk updates
+        Log.d("AccountViewModel", "Accounts list set: " + newAccounts.toString());
     }
+
 
 
 }

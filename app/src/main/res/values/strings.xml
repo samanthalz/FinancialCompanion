@@ -54,4 +54,12 @@
     <string name="add_new_account">Add New Account</string>
     <string name="initial_amount">Initial Amount</string>
     <string name="choose_icon">Choose Icon</string>
+    <string name="add_account_icon">Add Account Icon</string>
+    <string name="savings_icon">Savings Icon</string>
+    <string name="savings">Savings</string>
+    <string name="your_goal_description_goes_here">Your goal description goes here.</string>
+    <string name="description">Description</string>
+    <string name="due_date">Due date:</string>
+    <string name="goal_amount">Goal Amount</string>
+    <string name="total_saved">Total Saved</string>
 </resources>

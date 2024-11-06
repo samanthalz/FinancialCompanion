@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/very_light_green_rect"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
+
+    <!-- Goal Label -->
+    <TextView
+        android:id="@+id/goalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal Label"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_alignParentTop="true"/>
+
+    <!-- Due Date Container - Horizontal LinearLayout -->
+    <LinearLayout
+        android:id="@+id/goalDueDateLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/goalLabel"
+        android:layout_marginTop="4dp"
+        android:layout_alignParentStart="true">
+
+        <!-- Due Date Label -->
+        <TextView
+            android:id="@+id/goalDueDateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/due_date"
+            android:textSize="14sp"
+            android:layout_marginEnd="6dp"
+            android:textColor="@color/black" />
+
+        <!-- Due Date Value -->
+        <TextView
+            android:id="@+id/goalDueDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+
+    <!-- Goal Status aligned to the right on the same row as Due Date -->
+    <TextView
+        android:id="@+id/goalStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Achieved"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@id/goalDueDateLayout"
+        android:layout_marginTop="4dp"/>
+
+    <!-- LinearLayout for Total Saved and Goal Amount -->
+    <LinearLayout
+        android:id="@+id/goalTotalSaved"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/goalDueDateLayout"
+        android:layout_marginTop="8dp">
+
+        <!-- Left Side: Total Saved Amount Indicator -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/total_saved"
+                android:textSize="12sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RM0.00"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Right Side: Goal Amount Indicator -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/goal_amount"
+                android:textSize="12sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/goalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RM0.00"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <!-- Goal Description Label -->
+    <TextView
+        android:id="@+id/goalDescriptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/description"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:layout_below="@id/goalTotalSaved"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Goal Description Content -->
+    <TextView
+        android:id="@+id/goalDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/your_goal_description_goes_here"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:layout_below="@id/goalDescriptionLabel"
+        android:layout_marginTop="4dp"/>
+
+
+</RelativeLayout>
