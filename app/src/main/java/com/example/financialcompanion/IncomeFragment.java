@@ -56,6 +56,7 @@ public class IncomeFragment extends Fragment {
 
         Log.d("IncomeFragment", "Attempting to fetch income categories from Firebase...");
 
+
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -64,9 +65,8 @@ public class IncomeFragment extends Fragment {
                 for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
                     Category category = categorySnapshot.getValue(Category.class);
                     if (category != null) {
-                        if (category.getVectorResource() == 2131165310) { // Check if it's the vector category
+                        if (category.getVectorResource() == R.drawable.baseline_add_36_grey) { // Check if it's the vector category
                             vectorCategory = category; // Store it to add later
-                            Log.d("IncomeFragment", "Found vector category with ID 2131165310: " + vectorCategory);
                         } else {
                             categories.add(category); // Add other categories normally
                             Log.d("IncomeFragment", "Added category: " + category);

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home_scroll"
     tools:context=".HomeFragment">
 
@@ -15,6 +16,123 @@
         android:layout_marginTop="40dp"
         android:layout_gravity="start"
         tools:ignore="UselessParent">
+
+        <!-- Circular Buttons Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+
+            <!-- Accounts Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="12dp"
+                android:gravity="center">
+
+                <Button
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/circle_background"
+                    app:icon ="@drawable/baseline_account_balance_36"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:drawablePadding="8dp"
+                    android:padding="0dp"
+                    android:focusable="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/accounts"
+                    android:textAlignment="center"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Budget Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="12dp"
+                android:gravity="center">
+
+                <Button
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/circle_background"
+                    app:icon ="@drawable/book_36dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:drawablePadding="8dp"
+                    android:padding="0dp"
+                    android:focusable="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/budget"
+                    android:textAlignment="center"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Goals Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="12dp"
+                android:gravity="center">
+
+                <Button
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/circle_background"
+                    app:icon ="@drawable/target_36dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:drawablePadding="8dp"
+                    android:padding="0dp"
+                    android:focusable="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/goals"
+                    android:textAlignment="center"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Summary Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="12dp"
+                android:gravity="center">
+
+                <Button
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/circle_background"
+                    app:icon ="@drawable/baseline_pie_chart_36"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:drawablePadding="8dp"
+                    android:padding="0dp"
+                    android:focusable="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/summary"
+                    android:textAlignment="center"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- Row for Expenses and Income boxes -->
         <LinearLayout
@@ -32,7 +150,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:background="@drawable/green_border"
-                android:padding="16dp"
+                android:padding="8dp"
                 android:gravity="center">
 
                 <TextView
@@ -58,7 +176,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:background="@drawable/green_border"
-                android:padding="16dp"
+                android:padding="8dp"
                 android:gravity="center"
                 android:layout_marginStart="8dp">
 
@@ -85,7 +203,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/green_border"
             android:padding="8dp"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="5dp">
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pieChart"
@@ -126,7 +244,8 @@
                 android:fontFamily="sans-serif"
                 android:paddingEnd="8dp"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                tools:ignore="RtlSymmetry" />
 
         </LinearLayout>
 
@@ -141,4 +260,4 @@
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

@@ -42,7 +42,7 @@
 
     <!-- "Add Asset" button -->
     <LinearLayout
-        android:id="@+id/add_asset_button"
+        android:id="@+id/add_account_button"
         android:layout_marginBottom="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -52,12 +52,12 @@
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_add_24_grey"
             android:layout_marginEnd="8dp"
-            android:contentDescription="Add Asset Icon"/>
+            android:contentDescription="Add Account Icon"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add New Asset"
+            android:text="Add New Account"
             android:textSize="16sp"/>
     </LinearLayout>
 

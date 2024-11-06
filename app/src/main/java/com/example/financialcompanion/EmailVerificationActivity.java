@@ -198,7 +198,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
         String accountId = reference.push().getKey(); // Generates a unique key for the account
 
         // Create an account with the unique ID
-        Account savingsAccount = new Account(accountId, "Savings", 0.0);
+        Account savingsAccount = new Account(accountId, "Savings", 0.0, R.drawable.finance_bank_piggy_business_money_icon);
         newUser.addAccount(savingsAccount); // Add the account to the user
 
         // Mark this user as a first-time user
@@ -230,6 +230,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
         }
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private void initializeCategories(String userId) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("categories");
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/very_light_green_rect"
+    android:gravity="center_vertical">
+
+    <!-- Account Logo -->
+    <ImageView
+        android:id="@+id/account_logo"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+    <!-- Account Name and Balance -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        tools:ignore="RtlSymmetry">
+
+        <!-- Account Name -->
+        <TextView
+            android:id="@+id/account_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/account_name"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <!-- Account Balance -->
+        <TextView
+            android:id="@+id/account_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/balance"
+            android:textSize="14sp"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+    <!-- More Options Menu (3 Dots) -->
+    <ImageView
+        android:id="@+id/more_options"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/baseline_more_horiz_24_black"
+        android:contentDescription="@string/more_options" />
+</LinearLayout>

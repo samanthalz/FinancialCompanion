@@ -63,9 +63,9 @@ public class ExpenseFragment extends Fragment {
                 Category vectorCategory = null;
                 for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
                     Category category = categorySnapshot.getValue(Category.class);
-                    if (category.getVectorResource() == 2131165310) { // Check if it's the vector category
+                    assert category != null;
+                    if (category.getVectorResource() == R.drawable.baseline_add_36_grey) { // Check if it's the vector category
                         vectorCategory = category; // Store it to add later
-                        Log.d("ExpenseFragment", "Found vector category with ID 2131165310: " + vectorCategory);
                     } else {
                         categories.add(category); // Add other categories normally
                         Log.d("ExpenseFragment", "Added category: " + category);

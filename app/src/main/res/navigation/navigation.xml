@@ -56,12 +56,12 @@
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.financialcompanion.EditProfileFragment"
-        android:label="fragment_edit_profile"
+        android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
     <fragment
         android:id="@+id/manageAccountsFragment"
         android:name="com.example.financialcompanion.ManageAccountsFragment"
-        android:label="fragment_manage_accounts"
+        android:label="Manage Accounts"
         tools:layout="@layout/fragment_manage_accounts" />
 
 

@@ -28,14 +28,6 @@ public class TransactionPagerAdapter extends FragmentStateAdapter {
         }
     }
 
-    public IncomeFragment getIncomeFragment() {
-        return incomeFragment;
-    }
-
-    public ExpenseFragment getExpenseFragment() {
-        return expenseFragment;
-    }
-
     @Override
     public int getItemCount() {
         return 2; // Number of tabs (income and expense)

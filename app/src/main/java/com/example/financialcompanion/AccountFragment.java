@@ -50,20 +50,7 @@ public class AccountFragment extends Fragment {
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
 
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller,
-                                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                Log.d("Navigation", "Destination ID: " + destination.getId() +
-                        " (" + getResources().getResourceEntryName(destination.getId()) + ")");
 
-                if(destination.getId() == R.id.transaction_fragment) {
-                    bottomNavigationView.setVisibility(View.GONE);
-                } else {
-                    bottomNavigationView.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
         // Set click listeners for each setting option
         setupNavigation(view);

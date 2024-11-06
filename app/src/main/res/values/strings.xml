@@ -42,4 +42,16 @@
     <string name="change_pass_instruction">No worries! Enter your email address below and we will send you a code to reset your password.</string>
     <string name="enter_your_email">Enter your email</string>
     <string name="send_code">Send Code</string>
+    <string name="accounts">Accounts</string>
+    <string name="budget">Budget</string>
+    <string name="goals">Goals</string>
+    <string name="summary">Summary</string>
+    <string name="submit">Submit</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="account_name">Account Name</string>
+    <string name="balance">Balance:</string>
+    <string name="more_options">More options</string>
+    <string name="add_new_account">Add New Account</string>
+    <string name="initial_amount">Initial Amount</string>
+    <string name="choose_icon">Choose Icon</string>
 </resources>

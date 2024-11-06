@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,6 +59,8 @@ public class HomeFragment extends Fragment {
     RecyclerView recentTransactionsRecyclerView;
     private final List<Transaction> transactionList = new ArrayList<>();
     private RecentTransactionAdapter adapter;
+    private NestedScrollView financialSummaryLayout;
+    private BottomNavigationView bottomNav;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -97,57 +100,36 @@ public class HomeFragment extends Fragment {
         recentTransactionsRecyclerView = view.findViewById(R.id.recentTransactionsRecyclerView);
         recentTransactionsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
-        ScrollView financialSummaryLayout = view.findViewById(R.id.home_scroll);
-//        // Use ViewTreeObserver to wait until the layout is fully rendered
-//        ViewTreeObserver vto = bottomNav.getViewTreeObserver();
-//        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                // Remove the listener to avoid repeated calls
-//                bottomNav.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//
-//                // Get the height of the bottom navigation
-//                int bottomNavHeight = bottomNav.getHeight();
-//                Log.d("HomeFragment", "Bottom Navigation Height: " + bottomNavHeight);
-//
-//                // Get screen height
-//                int screenHeight = getResources().getDisplayMetrics().heightPixels;
-//                Log.d("HomeFragment", "Screen Height: " + screenHeight);
-//
-//                // Set the ScrollView height to the remaining height
-//                ViewGroup.LayoutParams scrollViewParams = financialSummaryLayout.getLayoutParams();
-//                scrollViewParams.height = screenHeight - bottomNavHeight;
-//                financialSummaryLayout.setLayoutParams(scrollViewParams);
-//
-//                Log.d("HomeFragment", "ScrollView Height Set To: " + scrollViewParams.height);
-//            }
-//        });
+        bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+        financialSummaryLayout = view.findViewById(R.id.home_scroll);
+
+        // Use ViewTreeObserver to wait until the layout is fully rendered
+        ViewTreeObserver vto = bottomNav.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // Remove the listener to avoid repeated calls
+                bottomNav.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                // Get screen height
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
+                Log.d("HomeFragment", "Screen Height: " + screenHeight);
+
+                // Set the ScrollView height to the remaining height (screenHeight - 333)
+                ViewGroup.LayoutParams scrollViewParams = financialSummaryLayout.getLayoutParams();
+                scrollViewParams.height = screenHeight - 333;
+                financialSummaryLayout.setLayoutParams(scrollViewParams);
+
+                Log.d("HomeFragment", "ScrollView Height Set To: " + scrollViewParams.height);
+            }
+        });
+
 
         // Initialize adapter with the empty list and set it to the RecyclerView
         adapter = new RecentTransactionAdapter(transactionList, expenseCategories);
         recentTransactionsRecyclerView.setAdapter(adapter);
         fetchCategories(userId);
 
-        financialSummaryLayout.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                financialSummaryLayout.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                int bottomNavHeight = bottomNav.getHeight();
-                Log.d("HomeFragment", "Bottom Navigation Height: " + bottomNavHeight);
-
-                int screenHeight = getResources().getDisplayMetrics().heightPixels;
-                Log.d("HomeFragment", "Screen Height: " + screenHeight);
-
-                ViewGroup.LayoutParams scrollViewParams = financialSummaryLayout.getLayoutParams();
-                scrollViewParams.height = screenHeight - bottomNavHeight;
-                financialSummaryLayout.setLayoutParams(scrollViewParams);
-
-                Log.d("HomeFragment", "ScrollView Height Set To: " + scrollViewParams.height);
-                return true;
-            }
-        });
 
         // Load the latest transactions
         loadLatestTransactions();
