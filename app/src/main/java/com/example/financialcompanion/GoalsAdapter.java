@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
@@ -63,15 +64,43 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
         // Bind the data to the views
         holder.labelTextView.setText(goal.getLabel());
 
-        // Convert Date to formatted string
-        Date dueDate = goal.getDueDate();  // Assuming this returns a Date object
-        if (dueDate != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());  // Customize format as needed
-            String formattedDate = sdf.format(dueDate);
+        // Assuming dueDate is in long (milliseconds since epoch)
+        Long dueDateLong = goal.getDueDate();  // Assuming this returns a long value (milliseconds)
+        if (dueDateLong != null) {
+            // Create a Date object from the long value
+            Date dueDate = new Date(dueDateLong);
+
+            // Format the Date object into "dd/MM/yyyy"
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            String formattedDate = sdf.format(dueDate);  // Convert Date to formatted string
+
+            // Set the formatted date in the TextView
             holder.dueDateTextView.setText(formattedDate);
         }
-        holder.statusTextView.setText(goal.getStatus());  // Assuming the status is part of Goal model
-       // holder.totalSavedTextView.setText(String.format("RM%.2f", goal.getTotalSaved()));
+
+        holder.statusTextView.setText(goal.getStatus());
+
+        // Set the statusTextView color based on the goal status
+        String status = goal.getStatus();
+        if (status != null) {
+            switch (status) {
+                case "In Progress":
+                    holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.orange));  // In Progress - orange
+                    break;
+                case "Achieved":
+                    holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green));  // Achieved - green
+                    break;
+                case "Missed":
+                    holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));  // Missed - red
+                    break;
+                default:
+                    holder.statusTextView.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.black));  // Default color if none match
+                    break;
+            }
+        }
+
+
+        // holder.totalSavedTextView.setText(String.format("RM%.2f", goal.getTotalSaved()));
         holder.goalAmountTextView.setText(String.format("RM%.2f", goal.getAmount()));
         holder.descriptionTextView.setText(goal.getDescription());
     }
@@ -89,10 +118,10 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void updateGoals(List<Goal> updatedGoalsList) {
-        // Update the adapter's data with the new list of goals
-        this.goalsList = updatedGoalsList;
-        notifyDataSetChanged();  // Notify the adapter that the data has changed
+    public void setGoals(List<Goal> newGoalList) {
+        this.goalsList = newGoalList;
+        notifyDataSetChanged();
     }
+
 
 }

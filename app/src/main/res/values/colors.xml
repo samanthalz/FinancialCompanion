@@ -7,4 +7,7 @@
     <color name="circle_background_color">#E0FDF1</color>
     <color name="light_green_bg">#eef7eb</color>"
     <color name="light_green">#8EBB87</color>
+    <color name="orange">#FFA500</color>  <!-- Ongoing color -->
+    <color name="goal_green">#4CAF50</color>  <!-- Success color -->
+    <color name="red">#F44336</color>  <!-- Did not hit goal color -->
 </resources>

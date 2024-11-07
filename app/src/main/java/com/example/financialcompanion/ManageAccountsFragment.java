@@ -1,20 +1,13 @@
 package com.example.financialcompanion;
 
-import static androidx.navigation.fragment.FragmentKt.findNavController;
-
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,12 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -60,16 +49,17 @@ public class ManageAccountsFragment extends Fragment {
 
         // Initialize the RecyclerView
         accountRecyclerView = view.findViewById(R.id.account_recycler_view);
+        //accountRecyclerView.setBackgroundColor(Color.WHITE);
 
         // Set up an empty list and adapter
         accountList = new ArrayList<>();
         accountAdapter = new AccountAdapter(accountList);
         accountRecyclerView.setAdapter(accountAdapter);
 
-        // Observe accounts in ViewModel to update RecyclerView automatically
+        // Observe accounts in ViewModel to update RecyclerVie  // Update adapter with new data automatically
         accountViewModel.getAccounts().observe(getViewLifecycleOwner(), accounts -> {
-            accountAdapter.setAccounts(accounts);  // Update adapter with new data
-            accountAdapter.notifyItemInserted(accountList.size() - 1);
+            accountAdapter.setAccounts(accounts);
+            accountAdapter.notifyDataSetChanged();
         });
 
         Button addNewAccountButton = view.findViewById(R.id.add_account_button);
@@ -139,31 +129,38 @@ public class ManageAccountsFragment extends Fragment {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("accounts");
 
         // Listener to get all accounts
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot accountsSnapshot) {
+                accountList.clear(); // Clear the list once before adding new accounts
+
                 for (DataSnapshot accountSnapshot : accountsSnapshot.getChildren()) {
-                    // Retrieve each account
-                    String accId = accountSnapshot.getKey();
-                    String accountName = accountSnapshot.child("accountName").getValue(String.class);
-                    Double balance = accountSnapshot.child("balance").getValue(Double.class);
-                    Integer iconId = accountSnapshot.child("icon_id").getValue(Integer.class);
-
-                    // Set default values if any data is missing
-                    accountName = accountName != null ? accountName : "Unnamed Account";
-                    balance = balance != null ? balance : 0.0;
-                    iconId = iconId != null ? iconId : R.drawable.baseline_error_24; // Default icon if iconId is null
-
-                    // Create Account object
-                    Account account = new Account(accId, accountName, balance, iconId);
-                    accountList.add(account);
-                    accountViewModel.addAccount(account);
-                    Log.d("AccountInfo", "Account: " + accountName + " | Balance: " + balance + " | Icon ID: " + iconId);
+                    Account account = accountSnapshot.getValue(Account.class);
+                    if (account != null) {
+                        accountList.add(account);
+                    }
                 }
 
-                // Sort accounts by name (or balance, or any other field as needed)
-                accountList.sort(new Comparator<Account>() {
+                // Ensure "Savings" account is always at the top
+                Account savingsAccount = null;
+                List<Account> otherAccounts = new ArrayList<>();
+
+                for (Account account : accountList) {
+                    if ("Savings".equals(account.getAccountName())) {
+                        savingsAccount = account; // Save the "Savings" account
+                    } else {
+                        otherAccounts.add(account); // Add other accounts to the list
+                    }
+                }
+
+                // Add "Savings" account at the top (if it exists)
+                if (savingsAccount != null) {
+                    otherAccounts.add(0, savingsAccount); // Add "Savings" at the beginning
+                }
+
+                // Sort the rest of the accounts (after placing "Savings" at the top)
+                otherAccounts.sort(new Comparator<Account>() {
                     @Override
                     public int compare(Account a1, Account a2) {
                         return a1.getAccountName().compareTo(a2.getAccountName());
@@ -171,9 +168,9 @@ public class ManageAccountsFragment extends Fragment {
                 });
 
                 // Get the latest 5 accounts (or limit as needed)
-                List<Account> latestAccounts = accountList.size() > 5
-                        ? accountList.subList(0, 5)
-                        : accountList;
+                List<Account> latestAccounts = otherAccounts.size() > 5
+                        ? otherAccounts.subList(0, 5)
+                        : otherAccounts;
 
                 // Update the adapter with the latest accounts
                 accountAdapter.setAccounts(latestAccounts);

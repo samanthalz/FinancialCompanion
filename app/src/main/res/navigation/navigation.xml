@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_homeFragment_to_goalsFragment2"
             app:destination="@id/goalsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_petFragment"
+            app:destination="@id/petFragment" />
     </fragment>
 
     <fragment
@@ -36,6 +39,9 @@
         <action
             android:id="@+id/action_coursesFragment_to_addGoalFragment"
             app:destination="@id/addGoalFragment" />
+        <action
+            android:id="@+id/action_coursesFragment_to_petFragment"
+            app:destination="@id/petFragment" />
     </fragment>
 
     <fragment
@@ -60,6 +66,9 @@
         <action
             android:id="@+id/action_accountFragment_to_addGoalFragment"
             app:destination="@id/addGoalFragment" />
+        <action
+            android:id="@+id/action_accountFragment_to_petFragment"
+            app:destination="@id/petFragment" />
     </fragment>
 
     <fragment

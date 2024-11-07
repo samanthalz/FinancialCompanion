@@ -88,10 +88,5 @@ public class TransAccountAdapter extends RecyclerView.Adapter<TransAccountAdapte
     public int getItemCount() {
         return accounts.size();
     }
-
-    // Method to get the selected account
-    public Account getSelectedAccount() {
-        return selectedAccount;
-    }
 }
 

@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:background="@drawable/very_light_green_rect"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="12dp"
     android:elevation="2dp">
 
     <!-- Goal Label -->

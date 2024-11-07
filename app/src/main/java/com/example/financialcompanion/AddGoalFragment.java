@@ -1,6 +1,5 @@
 package com.example.financialcompanion;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +14,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.media3.common.util.UnstableApi;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -54,11 +50,22 @@ public class AddGoalFragment extends Fragment {
     private MaterialButton createGoalButton;
     private String userId;
     private String selectedDueDate;
-    final List<Account> accounts = new ArrayList<>();
+    private List<String> accountNames;
     private String selectedAccount;
+    private List<Account> allAccounts = new ArrayList<>();
 
     public AddGoalFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Get the user ID, ensuring the user is logged in
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+
+        // Load accounts from Firebase
+        loadAccountsFromFirebase();
     }
 
     @Override
@@ -66,9 +73,6 @@ public class AddGoalFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_add_goal, container, false);
-
-        // Get the user ID, ensuring the user is logged in
-        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         // Initialize views
         goalLabelEditText = rootView.findViewById(R.id.goal_label_edit_text);
@@ -144,7 +148,7 @@ public class AddGoalFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // List to hold account names, starting with "All" at the top
-                List<String> accountNames = new ArrayList<>();
+                accountNames = new ArrayList<>();
                 accountNames.add("All");  // Default selection
 
                 // Loop through the accounts and get the account names
@@ -204,9 +208,6 @@ public class AddGoalFragment extends Fragment {
 
         // Set the default date to the goalDueDateButton
         goalDueDateButton.setText(formattedDate);
-
-        // Save the formattedDate for use later
-        selectedDueDate = formattedDate; // This will be used later when saving the goal
     }
 
 
@@ -255,6 +256,7 @@ public class AddGoalFragment extends Fragment {
         String goalLabel = Objects.requireNonNull(goalLabelEditText.getText()).toString().trim();
         String goalAmountStr = Objects.requireNonNull(goalAmountEditText.getText()).toString().trim();
         String goalDescription = Objects.requireNonNull(goalDescriptionEditText.getText()).toString().trim();
+        String dueDateStr = Objects.requireNonNull(goalDueDateButton.getText()).toString().trim();
         double goalAmount = 0.0;
 
         try {
@@ -265,38 +267,55 @@ public class AddGoalFragment extends Fragment {
         }
 
         // Validate input fields
-        if (goalLabel.isEmpty() || goalAmountStr.isEmpty() || goalDescription.isEmpty() || selectedAccount == null || selectedDueDate == null) {
+        if (goalLabel.isEmpty() || goalAmountStr.isEmpty() || goalDescription.isEmpty() || selectedAccount == null || dueDateStr.isEmpty()) {
             // Show validation error message (e.g., Toast)
             return;
         }
 
-        // Generate a unique ID for the goal
         String goalId = UUID.randomUUID().toString();
 
         // Get the current system time for the createDate
         Date createDate = new Date();
 
-        // Use the date selected by the user for the dueDate, parse the string to Date if needed
-        String formattedDate = selectedDueDate;
-
+        // Define the new format for both dates "dd/MM/yyyy HH:mm:ss"
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        SimpleDateFormat longDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
+        // Parse the due date string into a Date object
         Date dueDate = null;
         try {
-            dueDate = dateFormat.parse(formattedDate);
+            dueDate = dateFormat.parse(dueDateStr);  // Parse the due date from the string (dd/MM/yyyy)
         } catch (ParseException e) {
-            // Handle the error in case of incorrect date format
             e.printStackTrace();
-            return; // Exit method if the date format is invalid
+            return;  // Exit if the date format is invalid
         }
 
-        // Create the list of accounts based on the selected account
-        setAccountsBasedOnSelection(selectedAccount);
+        // Convert the Date object to long (milliseconds since the Unix epoch)
+        long createDateLong = createDate.getTime();
+        long dueDateLong = dueDate != null ? dueDate.getTime() : 0;  // Convert due date to long
 
         // Set the goal status as "Ongoing"
-        String status = "Ongoing";
+        String status = "In Progress";
+
+        // Get the selected category from the spinner (this is likely a selectedAccount or selectedCategory)
+        String selectedCategory = selectedAccount;
+
+        // Create the list of accounts based on selected category
+        List<Account> newaccountslist = new ArrayList<>();
+
+        // Assuming allAccounts is a List<Account> containing all available accounts
+        if (selectedCategory.equals("All")) {
+            newaccountslist.addAll(allAccounts);  // Add all accounts if "All" is selected
+        } else {
+            for (Account account : allAccounts) {
+                if (account.getAccountName().equals(selectedCategory)) {
+                    newaccountslist.add(account);  // Add the specific account if it matches the selected category
+                }
+            }
+        }
 
         // Create a Goal object
-        Goal newGoal = new Goal(goalId, goalLabel, goalAmount, createDate, dueDate, accounts, goalDescription, status);
+        Goal newGoal = new Goal(goalId, goalLabel, goalAmount, createDateLong, dueDateLong, newaccountslist, goalDescription, status);
 
         // Save the goal to the database (Firebase)
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -313,98 +332,31 @@ public class AddGoalFragment extends Fragment {
         });
     }
 
-    // Create the list of accounts based on the selected account
-    private void setAccountsBasedOnSelection(String selectedAccount) {
-        // Check if "All" is selected
-        if ("All".equals(selectedAccount)) {
-            // If "All" is selected, get all accounts from Firebase
-            getAllAccountsFromDatabase(new AccountsCallback() {
-                @Override
-                public void onAccountsRetrieved(List<Account> allAccounts) {
-                    // Add all accounts to the list
-                    accounts.addAll(allAccounts);
-                    // You can proceed with the accounts list after this (e.g., update UI)
-                }
-            });
-        } else {
-            // If a specific account is selected, get that account by name
-            getAccountByName(selectedAccount, new AccountCallback() {
-                @Override
-                public void onAccountFound(Account selectedAccountObj) {
-                    if (selectedAccountObj != null) {
-                        // Add the selected account to the list
-                        accounts.add(selectedAccountObj);
-                        // You can proceed with the accounts list after this (e.g., update UI)
-                    }
-                }
-            });
-        }
-    }
-
-    public void getAccountByName(String accountName, final AccountCallback callback) {
-        // Retrieve all accounts from Firebase asynchronously
-        getAllAccountsFromDatabase(new AccountsCallback() {
-            @Override
-            public void onAccountsRetrieved(List<Account> allAccounts) {
-                // Iterate through all accounts and return the one matching the name
-                for (Account account : allAccounts) {
-                    if (account.getAccountName().equals(accountName)) {
-                        callback.onAccountFound(account); // Pass the found account
-                        return;
-                    }
-                }
-                callback.onAccountFound(null); // Return null if no account matches
-            }
-        });
-    }
-
-    // Modify getAllAccountsFromDatabase to use the callback pattern
-    private void getAllAccountsFromDatabase(final AccountsCallback callback) {
-        // Create a list to hold all accounts
-        final List<Account> allAccounts = new ArrayList<>();
-
-        // Reference to the accounts node in the Firebase database
+    private void loadAccountsFromFirebase() {
         DatabaseReference accountsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("accounts");
 
-        // Fetch the list of accounts from Firebase
-        accountsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        accountsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Loop through the accounts and get the account details
-                for (DataSnapshot accountSnapshot : dataSnapshot.getChildren()) {
-                    // Get account details
-                    String accountName = accountSnapshot.child("accountName").getValue(String.class);
-                    String accountId = accountSnapshot.child("id").getValue(String.class);
-                    Double balance = accountSnapshot.child("balance").getValue(Double.class);
-                    Integer iconId = accountSnapshot.child("icon_id").getValue(Integer.class);
+                // Clear previous data before adding new data
+                allAccounts.clear();
 
-                    // Create Account if all fields are available
-                    if (accountName != null && accountId != null && balance != null && iconId != null) {
-                        Account account = new Account(accountId, accountName, balance, iconId);
-                        allAccounts.add(account);
+                for (DataSnapshot accountSnapshot : dataSnapshot.getChildren()) {
+                    Account account = accountSnapshot.getValue(Account.class);
+                    if (account != null) {
+                        allAccounts.add(account); // Add account to the list
                     }
                 }
-                // Once all accounts are added, pass them to the callback
-                callback.onAccountsRetrieved(allAccounts);
+
+                // Now the allAccounts list is populated
+                Log.d("Firebase", "Accounts loaded: " + allAccounts.size());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
-                Toast.makeText(requireContext(), "Failed to load accounts", Toast.LENGTH_SHORT).show();
-                callback.onAccountsRetrieved(new ArrayList<>()); // Return an empty list if there's an error
+                Log.e("Firebase", "Error loading accounts", databaseError.toException());
             }
         });
     }
-
-    // Define the callback interfaces
-    public interface AccountCallback {
-        void onAccountFound(Account account);
-    }
-
-    public interface AccountsCallback {
-        void onAccountsRetrieved(List<Account> accounts);
-    }
-
 
 }

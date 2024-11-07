@@ -10,6 +10,7 @@ public class User {
     String uid, name, email, username;
     private boolean isFirstTimeUser; // Flag for first-time user
     private Map<String, Account> accounts; // List of accounts
+    private PetCoin petCoin;
 
     public User() {
         accounts = new HashMap<>(); // Initialize the list of accounts
@@ -22,6 +23,7 @@ public class User {
         this.username = username;
         this.accounts = new HashMap<>(); // Initialize the list of accounts
         this.isFirstTimeUser = true; // Default to true for new users
+        this.petCoin = new PetCoin();;
     }
 
     public String getUid() {return uid;}
@@ -66,5 +68,13 @@ public class User {
 
     public void addAccount(Account account) {
         accounts.put(account.getId(), account); // Add the account with its ID as the key
+    }
+
+    public PetCoin getPetCoin() {
+        return petCoin;
+    }
+
+    public void setPetCoin(PetCoin petCoin) {
+        this.petCoin = petCoin;
     }
 }

@@ -36,31 +36,38 @@ import java.util.Objects;
 public class GoalsFragment extends Fragment {
     private RecyclerView goalsRecyclerView;
     private GoalsAdapter goalsAdapter;
-    private List<Goal> goalsList;
     private SharedViewModel viewModel;
     private NavController navController;
+    private String userId;
+    private List<Goal> goalsList = new ArrayList<>();
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_goals, container, false);  // Ensure your layout is for goals
+        View view = inflater.inflate(R.layout.fragment_goals, container, false);
+
+        // Get the user ID, ensuring the user is logged in
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
         // Initialize the RecyclerView
-        goalsRecyclerView = view.findViewById(R.id.goals_recycler_view);  // Make sure this is the correct RecyclerView ID for goals
+        goalsRecyclerView = view.findViewById(R.id.goals_recycler_view);
 
         // Set up an empty list and adapter
         goalsList = new ArrayList<>();
         goalsAdapter = new GoalsAdapter(goalsList);
         goalsRecyclerView.setAdapter(goalsAdapter);
 
-        // Observe goals in ViewModel to update RecyclerView automatically
-//        viewModel.getGoals().observe(getViewLifecycleOwner(), goals -> {
-//            goalsAdapter.setGoals(goals);  // Update adapter with new data
-//            goalsAdapter.notifyDataSetChanged();  // Refresh the adapter
-//        });
+        // Observe the goals list and update the RecyclerView automatically
+        viewModel.getGoals().observe(getViewLifecycleOwner(), updatedGoalsList -> {
+            goalsAdapter.setGoals(updatedGoalsList);
+            goalsAdapter.notifyDataSetChanged();  // Refresh the adapter with the latest data
+        });
+
+        // Call the method to update goal statuses
+        updateGoalStatuses();
 
         return view;
     }
@@ -68,87 +75,148 @@ public class GoalsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        fetchLatestGoals();  // Fetch goals when the fragment is resumed
+        // Fetch goals in real-time to keep the adapter updated
+        fetchLatestGoals();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Get the origin fragment info from arguments
         String originFragment = getArguments() != null ? getArguments().getString("originFragment") : "";
 
-        // Initialize the toolbar and set the navigation icon click listener
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) requireActivity();
-        activity.setSupportActionBar(toolbar); // Set the toolbar as the action bar
+        activity.setSupportActionBar(toolbar);
 
-        // Get the NavController for this fragment
         NavController navController = Navigation.findNavController(view);
 
-        // Enable the Up button and set the back arrow icon
         Objects.requireNonNull(activity.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24); // Set your back arrow icon
+        activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
 
-        // Set Navigation click listener for the back button
         toolbar.setNavigationOnClickListener(v -> {
-            Log.d("GoalsFragment", "Back pressed from origin: " + originFragment);
-
-            // Check the origin fragment and navigate accordingly
             if ("home".equals(originFragment)) {
-                // Check if the action exists in the navigation graph
                 navController.navigate(R.id.action_goalsFragment_to_homeFragment);
             } else {
-                // If the origin is not specified, just go back normally
                 navController.popBackStack();
-                Log.d("GoalsFragment", "Navigating back to previous fragment.");
             }
         });
     }
 
-    // Method to fetch goals from Firebase
+    // Fetch goals in real-time to keep the list updated
     private void fetchLatestGoals() {
-        List<Goal> goalsList = new ArrayList<>();
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("goals");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+                .getReference("users").child(userId).child("goals");
 
-        // Listener to get all goals
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot goalsSnapshot) {
-                // Loop through each goal
-                for (DataSnapshot goalSnapshot : goalsSnapshot.getChildren()) {
-                    // Directly map the DataSnapshot to a Goal object
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                goalsList.clear();
+                for (DataSnapshot goalSnapshot : dataSnapshot.getChildren()) {
                     Goal goal = goalSnapshot.getValue(Goal.class);
-
-                    // Check if the goal is not null
                     if (goal != null) {
-                        // Add goal to the list
                         goalsList.add(goal);
-
-                        // Log the goal information
-                        Log.d("GoalInfo", "Goal ID: " + goalSnapshot.getKey() +
-                                " | Label: " + goal.getLabel() +
-                                " | Amount: " + goal.getAmount() +
-                                " | Due Date: " + goal.getDueDate() +
-                                " | Description: " + goal.getDescription() +
-                                " | Status: " + goal.getStatus());
-                    } else {
-                        Log.w("GoalInfo", "Goal with ID " + goalSnapshot.getKey() + " is null.");
                     }
                 }
-                // After all goals are fetched, update the adapter
-                if (goalsAdapter != null) {
-                    goalsAdapter.updateGoals(goalsList);  // Update the adapter with the latest goals
-                }
+                goalsAdapter.updateGoalsList(goalsList);  // Update the adapter with new goals list
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error
                 Toast.makeText(getContext(), "Failed to load goals", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    private void updateGoalStatuses() {
+        DatabaseReference goalsRef = FirebaseDatabase.getInstance()
+                .getReference("users").child(userId).child("goals");
+
+        goalsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                goalsList.clear();
+
+                for (DataSnapshot goalSnapshot : dataSnapshot.getChildren()) {
+                    Goal goal = goalSnapshot.getValue(Goal.class);
+                    if (goal != null) {
+                        goalsList.add(goal); // Add goal to the list
+                    }
+                }
+
+                updateGoalsStatusesAfterLoading();  // Call to update the statuses
+                goalsAdapter.updateGoalsList(goalsList);  // Refresh the adapter with the updated goal statuses
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Firebase", "Error loading goals", databaseError.toException());
+            }
+        });
+    }
+
+    private void updateGoalsStatusesAfterLoading() {
+        // Get the current system date
+        Date currentDate = new Date();
+
+        for (Goal goal : goalsList) {
+            final double[] totalSavedAmount = {0.0};
+            Long dueDateLong = goal.getDueDate();  // Assuming this returns the long value (milliseconds)
+            String[] status = {goal.getStatus()};
+
+            // Check if the dueDate is not null and compare it with currentDate
+            if (dueDateLong != null) {
+                Date dueDate = new Date(dueDateLong);  // Convert long value to Date object
+                if (currentDate.after(dueDate)) {  // If the current date is after the due date
+                    for (Account account : goal.getGoalsAccounts()) {
+                        DatabaseReference transactionsRef = FirebaseDatabase.getInstance().getReference("users")
+                                .child(userId).child("accounts").child(account.getId()).child("transactions");
+
+                        transactionsRef.orderByChild("type").equalTo("income")
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        double accountTotal = 0.0;
+
+                                        for (DataSnapshot transactionSnapshot : dataSnapshot.getChildren()) {
+                                            Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+                                            if (transaction != null) {
+                                                accountTotal += transaction.getAmount();
+                                            }
+                                        }
+
+                                        totalSavedAmount[0] += accountTotal;
+
+                                        if (totalSavedAmount[0] >= goal.getAmount()) {
+                                            status[0] = "Achieved";
+                                        } else {
+                                            status[0] = "Missed";
+                                        }
+
+                                        goal.setStatus(status[0]);
+
+                                        DatabaseReference goalRef = FirebaseDatabase.getInstance()
+                                                .getReference("users").child(userId).child("goals").child(goal.getId());
+                                        goalRef.child("status").setValue(status[0]);
+
+                                        goalsAdapter.updateGoalsList(goalsList);  // Refresh adapter after updating
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        Log.e("GoalStatusUpdate", "Error fetching transactions: " + databaseError.getMessage());
+                                    }
+                                });
+                    }
+                }
+            }
+
+            // Additional condition when the goal's due date has not passed and saved amount is checked
+            else if (totalSavedAmount[0] >= goal.getAmount()) {
+                status[0] = "Achieved";
+                goal.setStatus(status[0]);
+            }
+        }
+    }
+
 }

@@ -265,15 +265,20 @@ public class TransactionFragment extends Fragment {
                 Calendar currentCalendar = Calendar.getInstance();
                 int second = currentCalendar.get(Calendar.SECOND);
 
+                long timestamp = 0;
+
                 @SuppressLint("SimpleDateFormat")
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Log.d("DateDebug", "dateString: " + dateString);
                 Date date = null;
                 if (!dateString.isEmpty()) {
                     try {
-                        dateString = dateString + ":" + String.format("%02d", second);
+                        dateString = dateString + ":" + String.format("%02d", second);  // Adding seconds if needed
                         date = sdf.parse(dateString);
-                        Log.d("DateDebug", "Parsed date (default toString): " + date);
+                        if (date != null) {
+                            timestamp = date.getTime();  // Convert to long timestamp
+                            Log.d("DateDebug", "Timestamp: " + timestamp);
+                        }
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -298,7 +303,7 @@ public class TransactionFragment extends Fragment {
                     // Create an instance of the Transaction class
                     Transaction transaction = new Transaction(
                             amount,
-                            date,
+                            timestamp,
                             transactionType,
                             description,
                             accountId,
@@ -418,7 +423,6 @@ public class TransactionFragment extends Fragment {
     private void updateDateButton() {
         String myFormat = "dd/MM/yyyy HH:mm"; // Format for the date
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
         btnDate.setText(sdf.format(calendar.getTime())); // Update button text with the formatted date
     }
 

@@ -7,14 +7,14 @@ import com.google.firebase.database.FirebaseDatabase;
 public class Transaction {
     private String trans_id;               // Unique identifier for the transaction
     private double amount;           // Amount of the transaction
-    private Date date;               // Date of the transaction
+    private Long date;               // Date of the transaction
     private String type;             // Type of transaction (e.g., "income", "expense")
     private String description;      // Description of the transaction
     private String accountId;        // ID of the associated account
     private int categoryId;       // ID of the associated category (vector resource)
 
     // Constructor
-    public Transaction(double amount, Date date, String type, String description,
+    public Transaction(double amount, Long date, String type, String description,
                        String accountId, int categoryId) {
         this.trans_id = "";
         this.amount = amount;
@@ -37,7 +37,7 @@ public class Transaction {
         return amount;
     }
 
-    public Date getDate() {
+    public Long getDate() {
         return date;
     }
 
@@ -65,7 +65,7 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Long date) {
         this.date = date;
     }
 
@@ -83,10 +83,6 @@ public class Transaction {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId; // Setter for category ID
-    }
-
-    public long getTimestamp() {
-        return date != null ? date.getTime() : 0;
     }
 
     public String generateUniqueId() {

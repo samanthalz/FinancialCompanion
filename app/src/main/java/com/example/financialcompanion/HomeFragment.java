@@ -28,6 +28,7 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -142,6 +143,56 @@ public class HomeFragment extends Fragment {
         goalButton.setOnClickListener(v -> openGoalsFragment());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        restoreNavigationBar();
+    }
+
+    // Method to hide the navigation bar when navigating to another fragment
+    private void hideNavigationBar() {
+        // Use findViewById to reference the views
+        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+        View bottomAppBar =  requireActivity().findViewById(R.id.bottom_app_bar);
+        FloatingActionButton fabAdd =  requireActivity().findViewById(R.id.fab_add);
+        View financialSummaryLayout =  requireActivity().findViewById(R.id.financial_summary_layout);
+
+        if (bottomNav != null) {
+            bottomNav.setVisibility(View.GONE);
+        }
+        if (bottomAppBar != null) {
+            bottomAppBar.setVisibility(View.GONE);
+        }
+        if (fabAdd != null) {
+            fabAdd.setVisibility(View.GONE);
+        }
+        if (financialSummaryLayout != null) {
+            financialSummaryLayout.setVisibility(View.GONE);
+        }
+    }
+
+    // Method to restore the navigation bar visibility when coming back to Home
+    private void restoreNavigationBar() {
+        // Use findViewById to reference the views in your activity or fragment
+        BottomNavigationView bottomNav =  requireActivity().findViewById(R.id.bottom_navigation);
+        View bottomAppBar =  requireActivity().findViewById(R.id.bottom_app_bar);
+        FloatingActionButton fabAdd =  requireActivity().findViewById(R.id.fab_add);
+        View financialSummaryLayout =  requireActivity().findViewById(R.id.financial_summary_layout);
+
+        if (bottomNav != null) {
+            bottomNav.setVisibility(View.VISIBLE);
+        }
+        if (bottomAppBar != null) {
+            bottomAppBar.setVisibility(View.VISIBLE);
+        }
+        if (fabAdd != null) {
+            fabAdd.setVisibility(View.VISIBLE);
+        }
+        if (financialSummaryLayout != null) {
+            financialSummaryLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void openGoalsFragment() {
         // Create a Bundle to pass the origin argument
         Bundle args = new Bundle();
@@ -149,15 +200,20 @@ public class HomeFragment extends Fragment {
 
         // Use NavController to navigate, passing the arguments
         navController.navigate(R.id.action_homeFragment_to_goalsFragment, args);
+
+        hideNavigationBar();
     }
 
     private void openManageAccountFragment() {
+
         // Create a Bundle to pass the origin argument
         Bundle args = new Bundle();
         args.putString("originFragment", "home");  // Add the origin fragment info
 
         // Use NavController to navigate, passing the arguments
         navController.navigate(R.id.action_homeFragment_to_manageAccountsFragment, args);
+
+        hideNavigationBar();
     }
 
     private void fetchCategories(String userId) {
@@ -246,7 +302,7 @@ public class HomeFragment extends Fragment {
                 transactionList.sort(new Comparator<Transaction>() {
                     @Override
                     public int compare(Transaction t1, Transaction t2) {
-                        return Long.compare(t2.getTimestamp(), t1.getTimestamp());
+                        return Long.compare(t2.getDate(), t1.getDate());
                     }
                 });
 
@@ -325,60 +381,66 @@ public class HomeFragment extends Fragment {
                                 Integer categoryId = transactionSnapshot.child("categoryId").getValue(Integer.class);
                                 String type = transactionSnapshot.child("type").getValue(String.class); // Assuming type is stored
 
-                                // Initialize Integer variables for month and year
-                                Integer month = null;
-                                Integer year = null;
+                                // Initialize a variable to hold the timestamp
+                                Long timestamp = null;
 
-                                // Check if "date" node exists
+                                // Check if "date" node exists and retrieve the timestamp
                                 if (transactionSnapshot.child("date").exists()) {
-                                    month = transactionSnapshot.child("date").child("month").getValue(Integer.class);
-                                    year = transactionSnapshot.child("date").child("year").getValue(Integer.class);
+                                    timestamp = transactionSnapshot.child("date").getValue(Long.class); // Retrieve as long timestamp
                                 }
 
-                                // Correct the year by adding 1900 to convert it to the actual year
-                                if (year != null) {
-                                    year += 1900; // Adjusting the year to be the actual year (e.g., 124 becomes 2024)
-                                }
+                                Log.d("TransactionDate", "Retrieved Timestamp: " + timestamp + ", Current Month: " + currentMonth + ", Current Year: " + currentYear);
 
-                                Log.d("TransactionDate", "Retrieved Month: " + month + ", Year: " + year +
-                                        ", Current Month: " + currentMonth + ", Current Year: " + currentYear);
+                                // Check if the timestamp was retrieved successfully
+                                if (timestamp != null) {
+                                    // Convert the timestamp to Calendar object for easier date manipulation
+                                    Calendar transactionDate = Calendar.getInstance();
+                                    transactionDate.setTimeInMillis(timestamp);
 
-                                // Check if the date was retrieved successfully
-                                if (month != null && year != null && month == currentMonth && year == currentYear ) {
-                                    // Adjust month to be 1-based
-                                    month = month + 1; // Firebase months are usually 0-indexed
+                                    int transactionMonth = transactionDate.get(Calendar.MONTH);  // Get the month from the timestamp
+                                    int transactionYear = transactionDate.get(Calendar.YEAR);   // Get the year from the timestamp
 
-                                    // The logic to check for transaction type and update the map
-                                    if ("expense".equals(type)) {
-                                        // Check if the categoryId and amountInt are not null
-                                        if (categoryId != null && amountInt != null) {
-                                            // Ensure category is not null before putting into the map
-                                            String category = String.valueOf(categoryId); // Convert categoryId to String if needed
+                                    // Log the retrieved date
+                                    Log.d("TransactionDate", "Transaction Date: " + transactionDate.getTime().toString());
 
-                                            // Use Optional to safely handle the update
-                                            Float currentAmount = Optional.ofNullable(categoryExpenseMap.get(category)).orElse(0f);
-                                            categoryExpenseMap.put(category, currentAmount + amountInt.floatValue());
+                                    // Check if the transaction is from the current month and year
+                                    if (transactionMonth == currentMonth && transactionYear == currentYear) {
+                                        // The logic to check for transaction type and update the map
+                                        if ("expense".equals(type)) {
+                                            // Check if the categoryId and amountInt are not null
+                                            if (categoryId != null && amountInt != null) {
+                                                // Ensure category is not null before putting into the map
+                                                String category = String.valueOf(categoryId); // Convert categoryId to String if needed
 
-                                            // Update totalExpense
-                                            totalExpense += amountInt.floatValue();
+                                                // Use Optional to safely handle the update
+                                                Float currentAmount = Optional.ofNullable(categoryExpenseMap.get(category)).orElse(0f);
+                                                categoryExpenseMap.put(category, currentAmount + amountInt.floatValue());
 
-                                            // Log the current state of categoryExpenseMap
-                                            Log.d("CategoryExpenseMap", "Current categoryExpenseMap: " + categoryExpenseMap.toString());
-                                        } else {
-                                            // Handle the case where categoryId or amountInt is null
-                                            Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has null category or amount.");
-                                        }
-                                    } else if ("income".equals(type)) {
-                                        // Sum up the total income
-                                        if (amountInt != null) {
-                                            totalIncome += amountInt.floatValue();
-                                        } else {
-                                            // Handle the case where amountInt is null
-                                            Log.w("TransactionWarning", "Income with ID: " + transactionId + " has null amount.");
+                                                // Update totalExpense
+                                                totalExpense += amountInt.floatValue();
+
+                                                // Log the current state of categoryExpenseMap
+                                                Log.d("CategoryExpenseMap", "Current categoryExpenseMap: " + categoryExpenseMap.toString());
+                                            } else {
+                                                // Handle the case where categoryId or amountInt is null
+                                                Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has null category or amount.");
+                                            }
+                                        } else if ("income".equals(type)) {
+                                            // Sum up the total income
+                                            if (amountInt != null) {
+                                                totalIncome += amountInt.floatValue();
+                                            } else {
+                                                // Handle the case where amountInt is null
+                                                Log.w("TransactionWarning", "Income with ID: " + transactionId + " has null amount.");
+                                            }
                                         }
                                     }
+                                } else {
+                                    // Handle case when date is missing
+                                    Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has missing date.");
                                 }
                             }
+
                             // Log the size of expenseCategories
                             if (expenseCategories == null || expenseCategories.isEmpty()) {
                                 Log.d("Expense2", "Expense categories are null or empty.");
@@ -393,11 +455,14 @@ public class HomeFragment extends Fragment {
                                 // Empty case: Show "No Expense" with a single color
                                 setupPieChart(new HashMap<>(), expenseCategories);
                             }
+
+                            // Update the UI with total income and expenses
                             updateUI(totalIncome, totalExpense);
                         }
+
                         @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            // Handle errors
+                        public void onCancelled(@NonNull DatabaseError error) {
+
                         }
                     });
                 }

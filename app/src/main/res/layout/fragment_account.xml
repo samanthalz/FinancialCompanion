@@ -13,18 +13,6 @@
         android:layout_height="200dp"
         android:background="@drawable/light_green_rect" />
 
-    <!-- Notification icon positioned at the top-right corner -->
-
-    <ImageView
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:src="@drawable/baseline_notifications_24"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="35dp"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="@string/notification_icon" />
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -161,6 +149,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/manage_accounts"
+                    android:textSize="16sp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_chevron_right_black_24"
+                    android:contentDescription="@string/chevron_right" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/change_pet_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/change_pet"
                     android:textSize="16sp"
                     android:layout_weight="1" />
 

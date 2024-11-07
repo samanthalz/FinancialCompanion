@@ -1,20 +1,25 @@
 package com.example.financialcompanion;
 
+import androidx.annotation.NonNull;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Goal {
     private String id;
     private String label;
     private double amount;
-    private Date createDate;
-    private Date dueDate;
+    private Long createDate;
+    private Long dueDate;
     private List<Account> accounts;  // List of accounts associated with the goal
     private String description;
     private String status;
+    private Boolean rewardGiven;
 
     // Constructor
-    public Goal(String id, String label, double amount, Date createDate, Date dueDate, List<Account> accounts, String description, String status) {
+    public Goal(String id, String label, double amount, Long createDate, Long dueDate, List<Account> accounts, String description, String status) {
         this.id = id;
         this.label = label;
         this.amount = amount;
@@ -23,6 +28,7 @@ public class Goal {
         this.accounts = accounts;
         this.description = description;
         this.status = status;
+        this.rewardGiven = false;
     }
 
     public Goal() {
@@ -54,19 +60,19 @@ public class Goal {
         this.amount = amount;
     }
 
-    public Date getCreateDate() {
+    public Long getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(Long createDate) {
         this.createDate = createDate;
     }
 
-    public Date getDueDate() {
+    public Long getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(Long dueDate) {
         this.dueDate = dueDate;
     }
 
@@ -92,6 +98,26 @@ public class Goal {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()); // Adjust format as needed
+        String currentDateStr = dateFormat.format(new Date()); // Format the current date
+        String dueDateStr = (dueDate != null) ? dateFormat.format(dueDate) : "N/A"; // Format due date if it exists
+
+        return "Goal{id='" + id + "', label='" + label + "', amount=" + amount
+                + ", status='" + status + "', currentDate='" + currentDateStr
+                + "', dueDate='" + dueDateStr + "'}";
+    }
+
+    public Boolean getRewardGiven() {
+        return rewardGiven;
+    }
+
+    public void setRewardGiven(Boolean rewardGiven) {
+        this.rewardGiven = rewardGiven;
     }
 }
 
