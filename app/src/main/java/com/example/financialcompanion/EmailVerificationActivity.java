@@ -222,6 +222,9 @@ public class EmailVerificationActivity extends AppCompatActivity {
                         // Failed to create user
                         Log.e(TAG, "Failed to create user: " + e.getMessage());
                     });
+
+            reference.child(uid).child("petType").setValue("Cat");
+
             // Initialize and save categories for this user
             initializeCategories(uid);
         } else {

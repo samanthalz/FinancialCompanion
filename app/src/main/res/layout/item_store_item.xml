@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/very_light_green_rect">
+
+    <!-- Vector image for the item -->
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/baseline_error_24"
+        android:layout_marginEnd="4dp"
+        android:layout_gravity="center_vertical"/>
+
+    <!-- Vertical layout for item name and coins needed -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_marginStart="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Item Name"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/item_coins_needed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Coins: 20"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <!-- Add to Cart Button aligned to the right -->
+    <Button
+        android:id="@+id/add_to_cart_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Item"
+        android:layout_gravity="center_vertical"/>
+</LinearLayout>

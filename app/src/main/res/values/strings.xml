@@ -65,4 +65,6 @@
     <string name="total_saved">Total Saved</string>
     <string name="change_pet">Change Pet</string>
     <string name="pet_coins_display">pet_coins_display</string>
+    <string name="cupboard">Cupboard</string>
+    <string name="item_shop">Item Shop</string>
 </resources>

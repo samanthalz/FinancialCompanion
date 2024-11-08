@@ -54,6 +54,18 @@
         <action
             android:id="@+id/action_petFragment_to_addGoalFragment"
             app:destination="@id/addGoalFragment" />
+        <action
+            android:id="@+id/action_petFragment_to_coursesFragment"
+            app:destination="@id/coursesFragment" />
+        <action
+            android:id="@+id/action_petFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+        <action
+            android:id="@+id/action_petFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_petFragment_self"
+            app:destination="@id/petFragment" />
     </fragment>
 
     <fragment
