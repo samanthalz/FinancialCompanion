@@ -171,5 +171,15 @@
             app:destination="@id/homeFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/changePetFragment"
+        android:name="com.example.financialcompanion.ChangePetFragment"
+        android:label="fragment_change_pet"
+        tools:layout="@layout/fragment_change_pet" >
+        <action
+            android:id="@+id/action_changePetFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+    </fragment>
+
 
 </navigation>

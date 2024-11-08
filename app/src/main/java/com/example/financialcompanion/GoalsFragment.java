@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +41,7 @@ public class GoalsFragment extends Fragment {
     private NavController navController;
     private String userId;
     private List<Goal> goalsList = new ArrayList<>();
+    private TextView noGoalsAddedText;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -65,6 +67,8 @@ public class GoalsFragment extends Fragment {
             goalsAdapter.setGoals(updatedGoalsList);
             goalsAdapter.notifyDataSetChanged();  // Refresh the adapter with the latest data
         });
+
+        noGoalsAddedText = view.findViewById(R.id.no_goals_added_text);
 
         // Call the method to update goal statuses
         updateGoalStatuses();
@@ -118,6 +122,14 @@ public class GoalsFragment extends Fragment {
                         goalsList.add(goal);
                     }
                 }
+
+                // Check if the goalsList is empty and set the visibility of the no_goals_added_text
+                if (goalsList.isEmpty()) {
+                    noGoalsAddedText.setVisibility(View.VISIBLE);  // Show the "No goals added" message
+                } else {
+                    noGoalsAddedText.setVisibility(View.GONE);  // Hide the message if goals exist
+                }
+
                 goalsAdapter.updateGoalsList(goalsList);  // Update the adapter with new goals list
             }
 
@@ -142,6 +154,13 @@ public class GoalsFragment extends Fragment {
                     if (goal != null) {
                         goalsList.add(goal); // Add goal to the list
                     }
+                }
+
+                // Check if the goalsList is empty and set the visibility of the no_goals_added_text
+                if (goalsList.isEmpty()) {
+                    noGoalsAddedText.setVisibility(View.VISIBLE);  // Show the "No goals added" message
+                } else {
+                    noGoalsAddedText.setVisibility(View.GONE);  // Hide the message if goals exist
                 }
 
                 updateGoalsStatusesAfterLoading();  // Call to update the statuses

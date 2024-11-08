@@ -50,8 +50,6 @@ public class AccountFragment extends Fragment {
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
 
-
-
         // Set click listeners for each setting option
         setupNavigation(view);
 
@@ -80,6 +78,7 @@ public class AccountFragment extends Fragment {
         LinearLayout editProfileLayout = view.findViewById(R.id.edit_profile_layout);
         LinearLayout changePasswordLayout = view.findViewById(R.id.change_pass_layout);
         LinearLayout manageAccountsLayout = view.findViewById(R.id.manage_acc_layout);
+        LinearLayout changePetLayout = view.findViewById(R.id.change_pet_layout);
 
         editProfileLayout.setOnClickListener(v -> {
             navController.navigate(R.id.editProfileFragment);
@@ -92,10 +91,14 @@ public class AccountFragment extends Fragment {
         manageAccountsLayout.setOnClickListener(v -> {
             navController.navigate(R.id.manageAccountsFragment);
         });
+
+        changePetLayout.setOnClickListener(v -> {
+            navController.navigate(R.id.changePetFragment);
+        });
     }
 
     private void loadUserDetails() {
-        databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {

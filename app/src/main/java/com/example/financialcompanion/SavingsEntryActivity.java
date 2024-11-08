@@ -65,28 +65,34 @@ public class SavingsEntryActivity extends AppCompatActivity {
                             if (!balanceStr.isEmpty()) {
                                 double balance = Double.parseDouble(balanceStr);
 
-                                // Update the user's savings balance directly
-                                userRef.child("accounts").child(accountId).child("balance").setValue(balance).addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        // Now update isFirstTimeUser to false
-                                        // After updating the user data
-                                        userRef.child("firstTimeUser").setValue(false).addOnCompleteListener(updateTask -> {
-                                            if (updateTask.isSuccessful()) {
-                                                Log.d(TAG, "Successfully updated firstTimeUser to false.");
-                                                // Proceed to the main activity
-                                                Intent intent = new Intent(SavingsEntryActivity.this, MainActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            } else {
-                                                // Handle possible errors
-                                                Log.e(TAG, "Failed to update user data: " + updateTask.getException().getMessage());
-                                                Toast.makeText(SavingsEntryActivity.this, "Failed to update user data.", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } else {
-                                        Toast.makeText(SavingsEntryActivity.this, "Failed to save balance.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                // Ensure the balance is greater than 0
+                                if (balance > 0) {
+                                    // Update the user's savings balance directly
+                                    userRef.child("accounts").child(accountId).child("balance").setValue(balance).addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            // Now update isFirstTimeUser to false
+                                            // After updating the user data
+                                            userRef.child("firstTimeUser").setValue(false).addOnCompleteListener(updateTask -> {
+                                                if (updateTask.isSuccessful()) {
+                                                    Log.d(TAG, "Successfully updated firstTimeUser to false.");
+                                                    // Proceed to the main activity
+                                                    Intent intent = new Intent(SavingsEntryActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                } else {
+                                                    // Handle possible errors
+                                                    Log.e(TAG, "Failed to update user data: " + updateTask.getException().getMessage());
+                                                    Toast.makeText(SavingsEntryActivity.this, "Failed to update user data.", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        } else {
+                                            Toast.makeText(SavingsEntryActivity.this, "Failed to save balance.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    // If balance is less than or equal to 0, show a message
+                                    Toast.makeText(SavingsEntryActivity.this, "Please enter a balance greater than 0.", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Toast.makeText(SavingsEntryActivity.this, "Please enter a valid balance.", Toast.LENGTH_SHORT).show();
                             }

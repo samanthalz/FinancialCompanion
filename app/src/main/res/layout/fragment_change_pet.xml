@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ChangePetFragment">
+
+    <!-- Back Button -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+
+        <!-- Toolbar for Back Button -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/green"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:title="Change Pet"
+            android:layout_marginTop="36dp"
+            android:layout_gravity="start"
+            app:titleTextColor="@android:color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- GridLayout for Pet Options -->
+    <GridLayout
+        android:id="@+id/petGridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:columnCount="2"
+        android:padding="16dp"
+        android:layout_gravity="top">
+
+        <!-- Cat Option -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/catImageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/cat_pet"
+                android:contentDescription="@string/cat_image" />
+
+            <TextView
+                android:id="@+id/catTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/cat"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <Button
+                android:id="@+id/catChangeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/change"/>
+
+            <TextView
+                android:id="@+id/catChosenText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/chosen"
+                android:textSize="16sp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <!-- Dog Option -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_columnWeight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/dogImageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/dog_pet"
+                android:contentDescription="@string/dog_image" />
+
+            <TextView
+                android:id="@+id/dogTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/dog"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <Button
+                android:id="@+id/dogChangeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/change"/>
+
+            <TextView
+                android:id="@+id/dogChosenText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/chosen"
+                android:textSize="16sp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </GridLayout>
+
+</FrameLayout>

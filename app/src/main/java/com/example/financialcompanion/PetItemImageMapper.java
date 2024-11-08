@@ -19,6 +19,7 @@ public class PetItemImageMapper {
         dogItems.put("Pink Bone Collar", R.drawable.dog_with_whitebonecollar);
         dogItems.put("Yellow Bone Collar", R.drawable.dog_with_yellowbonecollar);
         dogItems.put("Pink Ribbon", R.drawable.dog_with_ribbonright);
+        dogItems.put("Dog", R.drawable.dog_pet);
         petItemImageMap.put("Dog", dogItems);
 
         Map<String, Integer> catItems = new HashMap<>();
@@ -30,6 +31,7 @@ public class PetItemImageMapper {
         catItems.put("Pink Bone Collar", R.drawable.cat_with_whitebonecollar);
         catItems.put("Yellow Bone Collar", R.drawable.cat_with_yellowbonecollar);
         catItems.put("Pink Ribbon", R.drawable.cat_with_ribbonright);
+        catItems.put("Cat", R.drawable.cat_pet);
         petItemImageMap.put("Cat", catItems);
     }
 

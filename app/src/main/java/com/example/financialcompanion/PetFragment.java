@@ -1,5 +1,9 @@
 package com.example.financialcompanion;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -33,6 +37,7 @@ public class PetFragment extends Fragment {
     private DatabaseReference userRef;
     private Integer petCoinBalance;
     private ImageView petImageView;
+    private String selectedItemName;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +48,7 @@ public class PetFragment extends Fragment {
         petCoinBalanceTextView = view.findViewById(R.id.pet_coin_balance);
         gradientStoreButton = view.findViewById(R.id.gradientStoreButton);
         gradientCupboardButton = view.findViewById(R.id.gradientCupboardButton);
+        petImageView = view.findViewById(R.id.pet_image_view);
 
         auth = FirebaseAuth.getInstance();
         String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
@@ -54,17 +60,12 @@ public class PetFragment extends Fragment {
         // Start listening for goal updates
         listenForGoalUpdates();
 
+        listenForPetTypeUpdates();
+
         // Set click listener for the button
         gradientStoreButton.setOnClickListener(v -> {
             showStoreItemsDialog(petCoinBalance);
         });
-
-//        gradientCupboardButton.setOnClickListener(v -> {
-//            getPurchasedItems(purchasedItems -> {
-//                InventoryDialogFragment dialog = InventoryDialogFragment.newInstance(purchasedItems);
-//                dialog.show(getParentFragmentManager(), "InventoryDialogFragment");
-//            });
-//        });
 
         gradientCupboardButton.setOnClickListener(v -> {
             getPurchasedItems(purchasedItems -> {
@@ -74,9 +75,12 @@ public class PetFragment extends Fragment {
                 // Set the listener for the dialog fragment
                 dialog.setItemSelectedListener(new InventoryDialogFragment.OnItemSelectedListener() {
                     @Override
-                    public void onItemSelected(int imageResourceId) {
+                    public void onItemSelected(int imageResourceId, String itemName) {
                         // Update the pet image view with the selected item image
                         petImageView.setImageResource(imageResourceId);
+                        selectedItemName = itemName;
+                        // Save the selected image ID to Firebase
+                        userRef.child("selectedPetImage").setValue(imageResourceId);
                     }
                 });
 
@@ -85,12 +89,84 @@ public class PetFragment extends Fragment {
             });
         });
 
+        userRef.child("selectedPetImage").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Use a default image if no value is present in the database
+                Integer savedImageResourceId = snapshot.getValue(Integer.class);
+                if (savedImageResourceId != null) {
+                    petImageView.setImageResource(savedImageResourceId);
+                } else {
+                    petImageView.setImageResource(R.drawable.cat_pet); // Set to default if null
+                }
+            }
 
-        petImageView = view.findViewById(R.id.pet_image_view);
-
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to load pet image: " + error.getMessage());
+            }
+        });
 
         return view;
     }
+
+    private void listenForPetTypeUpdates() {
+        // Reference to the user's petType in Firebase
+        DatabaseReference petTypeRef = userRef.child("petType");
+
+        // Set up the listener for pet type updates
+        petTypeRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!isAdded()) return; // Ensure fragment is attached before updating
+
+                // Retrieve the pet type from Firebase
+                String petType = dataSnapshot.getValue(String.class);
+
+                if (petType != null) {
+                    // Update the pet image based on the pet type
+                    updatePetImage(petType);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("PetFragment", "Failed to read pet type updates: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void updatePetImage(String petType) {
+        // Retrieve the saved "wearing" state from SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("WornItemsPrefs", Context.MODE_PRIVATE);
+
+        // Retrieve the ID of the last worn item from SharedPreferences
+        String lastWornItemName = sharedPreferences.getString("lastWornItemName", null);
+
+        // Set selectedItemName based on whether lastWornItemId exists or not
+        String selectedItemName;
+        if (lastWornItemName != null) {
+            // If there's a last worn item, use it as the selectedItemName
+            selectedItemName = lastWornItemName;
+        } else {
+            // Otherwise, use the petType as the selectedItemName
+            selectedItemName = petType;
+        }
+
+        // Use PetItemImageMapper to get the image resource based on pet type and selected item name
+        int imageResourceId = PetItemImageMapper.getImageResource(petType, selectedItemName);
+
+        if (imageResourceId != -1) {
+            // Update the pet image view with the new image resource
+            petImageView.setImageResource(imageResourceId);
+
+            // Optionally, save the selected image ID to Firebase (if needed)
+            userRef.child("selectedPetImage").setValue(imageResourceId);
+        } else {
+            Log.e("PetFragment", "Invalid image resource for pet type: " + petType + " and selectedItemName: " + selectedItemName);
+        }
+    }
+
 
     private void getPurchasedItems(FirebaseCallback callback) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(); // Replace with actual user ID retrieval if needed
