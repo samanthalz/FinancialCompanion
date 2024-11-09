@@ -131,12 +131,16 @@
         android:contentDescription="@string/pet"
         />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="480dp"
+        android:layout_gravity="bottom">
     <TextView
+        android:id="@+id/recommend_text"
         android:layout_width="208dp"
         android:layout_height="27dp"
         android:layout_gravity="start|center"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="70dp"
         android:text="@string/recommended"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -145,9 +149,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="480dp"
-        android:layout_gravity="bottom">
-
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@id/recommend_text">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/course_list"
@@ -155,7 +159,7 @@
                 android:layout_height="wrap_content" />
 
 
-
+    </RelativeLayout>
 
     </RelativeLayout>
 
