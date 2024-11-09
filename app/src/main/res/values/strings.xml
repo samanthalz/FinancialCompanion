@@ -87,6 +87,16 @@
     <string name="month_year">Month/Year</string>
     <string name="close">close</string>
     <string name="select_month_range">Select Month Range</string>
+    <string name="search_courses">Search for courses</string>
+    <string name="favourites">Favourites</string>
+    <string name="budgeting">Budgeting</string>
+    <string name="invest">Investing</string>
+    <string name="banking">Banking</string>
+    <string name="planning">Planning</string>
+    <string name="recommended">Recommended for you</string>
+    <string name="course_intro">Hi! Lets find some courses and learn to earn together!</string>
+    <string name="minute_read">Min read</string>
+
     <string name="edit_icon">edit icon</string>
     <string name="category">category</string>
     <string name="save_budget">Save Budget</string>

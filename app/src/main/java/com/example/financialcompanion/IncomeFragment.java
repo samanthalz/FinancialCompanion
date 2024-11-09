@@ -4,7 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +31,32 @@ public class IncomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private SharedViewModel viewModel;
 
+    // Define the listener interface
+    public interface OnCreateIconClickListener {
+        void onCreateIconClicked();
+    }
+
+    private OnCreateIconClickListener createIconClickListener;
+
+    // Set the listener from the adapter
+    public void setOnCreateIconClickListener(OnCreateIconClickListener listener) {
+        this.createIconClickListener = listener;
+    }
+
+    public void navigateToAddIncomeFragment() {
+        // Navigate to AddIncomeFragment to cover the entire screen
+        AddIncomeFragment addIncomeFragment = new AddIncomeFragment();
+
+        FragmentTransaction transaction = requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction();
+
+        // Replace the nav_host_fragment to display AddIncomeFragment full-screen
+        transaction.replace(R.id.nav_host_fragment, addIncomeFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_income, container, false);
@@ -47,6 +75,8 @@ public class IncomeFragment extends Fragment {
             Log.d("IncomeFragment", "Income categories already set, setting adapter..."); // Log that categories are already set
             setCategoryAdapter(viewModel.getIncomeCategories().getValue());
         }
+
+
         return view;
     }
 
@@ -122,6 +152,14 @@ public class IncomeFragment extends Fragment {
         // Create and set the CategoryAdapter
         CategoryAdapter categoryAdapter = new CategoryAdapter(vectorDrawableResources, categoryNames, viewModel);
         recyclerView.setAdapter(categoryAdapter);
+        // Set the listener to the adapter
+        categoryAdapter.setOnCreateIconClickListener(new CategoryAdapter.OnCreateIconClickListener() {
+            @Override
+            public void onCreateIconClicked() {
+                // When the listener is triggered, call the method in the fragment
+                navigateToAddIncomeFragment();
+            }
+        });
         Log.d("IncomeFragment", "CategoryAdapter set with " + categories.size() + " categories."); // Log the adapter setup
     }
 }
