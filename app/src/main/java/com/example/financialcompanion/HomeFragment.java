@@ -65,6 +65,7 @@ public class HomeFragment extends Fragment {
     private Button accountButton;
     private Button goalButton;
     private Button summaryButton;
+    private Button budgetButton;
     private NavController navController;
 
     @Override
@@ -155,6 +156,9 @@ public class HomeFragment extends Fragment {
 
         summaryButton = view.findViewById(R.id.summary_button);
         summaryButton.setOnClickListener(v -> openSummaryFragment());
+
+        budgetButton = view.findViewById(R.id.budget_button);
+        budgetButton.setOnClickListener(v -> openBudgetFragment());
 
         viewAllTextView = view.findViewById(R.id.viewAllTextView);
         viewAllTextView.setOnClickListener(v -> openViewAllTransactionFragment());
@@ -253,6 +257,18 @@ public class HomeFragment extends Fragment {
 
         // Use NavController to navigate, passing the arguments
         navController.navigate(R.id.action_homeFragment_to_summaryFragment, args);
+
+        hideNavigationBar();
+    }
+
+    private void openBudgetFragment() {
+
+        // Create a Bundle to pass the origin argument
+        Bundle args = new Bundle();
+        args.putString("originFragment", "home");  // Add the origin fragment info
+
+        // Use NavController to navigate, passing the arguments
+        navController.navigate(R.id.action_homeFragment_to_budgetFragment, args);
 
         hideNavigationBar();
     }

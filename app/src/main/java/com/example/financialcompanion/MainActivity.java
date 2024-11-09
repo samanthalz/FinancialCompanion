@@ -244,6 +244,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        budgetLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+
+                // Get the current fragment's ID dynamically
+                int currentFragmentId = Objects.requireNonNull(navController.getCurrentDestination()).getId();
+                String originFragment = "";
+
+                // Determine the current fragment and set the origin accordingly
+                if (currentFragmentId == R.id.homeFragment) {
+                    originFragment = "home";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_homeFragment_to_addBudgetFragment, bundle);
+                } else if (currentFragmentId == R.id.coursesFragment) {
+                    originFragment = "courses";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_coursesFragment_to_addBudgetFragment, bundle);
+                } else if (currentFragmentId == R.id.petFragment) {
+                    originFragment = "pet";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_petFragment_to_addBudgetFragment, bundle);
+                } else if (currentFragmentId == R.id.accountFragment) {
+                    originFragment = "account";
+                    Bundle bundle = new Bundle();
+                    bundle.putString("originFragment", originFragment);
+                    navController.navigate(R.id.action_accountFragment_to_addBudgetFragment, bundle);
+                } else {
+                    Log.e("MainActivity", "No valid action to navigate to TransactionFragment");
+                }
+
+                // Hide UI elements after navigation
+                if (bottomNavigationView != null) {
+                    bottomNavigationView.setVisibility(View.GONE);
+                }
+                binding.bottomAppBar.setVisibility(View.GONE);
+                binding.fabAdd.setVisibility(View.GONE);
+                if (findViewById(R.id.financial_summary_layout) != null) {
+                    findViewById(R.id.financial_summary_layout).setVisibility(View.GONE);
+                }
+            }
+        });
+
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
