@@ -54,18 +54,13 @@ public class HomeFragment extends Fragment {
     private String userId;
     private SharedViewModel viewModel;
     private List<Category> expenseCategories;
-    private TextView incomeTextView; // Use your actual TextView ID
-    private TextView expenseTextView;
-    private TextView viewAllTextView;
+    private TextView incomeTextView, expenseTextView, viewAllTextView;
     private RecyclerView recentTransactionsRecyclerView;
     private final List<Transaction> transactionList = new ArrayList<>();
     private RecentTransactionAdapter adapter;
     private NestedScrollView financialSummaryLayout;
     private BottomNavigationView bottomNav;
-    private Button accountButton;
-    private Button goalButton;
-    private Button summaryButton;
-    private Button budgetButton;
+    private Button accountButton, goalButton, summaryButton, budgetButton;
     private NavController navController;
 
     @Override
@@ -76,7 +71,6 @@ public class HomeFragment extends Fragment {
 
         // Initialize the PieChart view from the inflated layout
         pieChart = view.findViewById(R.id.pieChart);
-
 
         // Get the user ID, ensuring the user is logged in
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
@@ -138,9 +132,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
         // Initialize adapter with the empty list and set it to the RecyclerView
-        // adapter = new RecentTransactionAdapter(transactionList, expenseCategories);
         adapter = new RecentTransactionAdapter(getContext(), transactionList, expenseCategories);
         recentTransactionsRecyclerView.setAdapter(adapter);
         fetchCategories(userId);
@@ -674,7 +666,7 @@ public class HomeFragment extends Fragment {
         }
 
         // Shuffle the color list to randomize the color assignment
-        Collections.shuffle(colorList);
+        // Collections.shuffle(colorList);
 
         // Assign colors to each entry, cycling through the shuffled list
         for (int i = 0; i < aggregatedEntries.size(); i++) {

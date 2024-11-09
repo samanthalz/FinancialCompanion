@@ -44,7 +44,7 @@
     <string name="enter_your_email">Enter your email</string>
     <string name="send_code">Send Code</string>
     <string name="accounts">Accounts</string>
-    <string name="budget">Budget</string>
+    <string name="budget">Budgets</string>
     <string name="goals">Goals</string>
     <string name="summary">Summary</string>
     <string name="submit">Submit</string>
@@ -96,7 +96,6 @@
     <string name="recommended">Recommended for you</string>
     <string name="course_intro">Hi! Lets find some courses and learn to earn together!</string>
     <string name="minute_read">Min read</string>
-
     <string name="edit_icon">edit icon</string>
     <string name="category">category</string>
     <string name="save_budget">Save Budget</string>

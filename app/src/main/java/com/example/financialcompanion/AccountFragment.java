@@ -80,7 +80,6 @@ public class AccountFragment extends Fragment {
     private void setupNavigation(View view) {
         LinearLayout editProfileLayout = view.findViewById(R.id.edit_profile_layout);
         LinearLayout changePasswordLayout = view.findViewById(R.id.change_pass_layout);
-        LinearLayout manageAccountsLayout = view.findViewById(R.id.manage_acc_layout);
         LinearLayout changePetLayout = view.findViewById(R.id.change_pet_layout);
 
         editProfileLayout.setOnClickListener(v -> {
@@ -89,10 +88,6 @@ public class AccountFragment extends Fragment {
 
         changePasswordLayout.setOnClickListener(v -> {
             navController.navigate(R.id.changePasswordFragment);
-        });
-
-        manageAccountsLayout.setOnClickListener(v -> {
-            navController.navigate(R.id.manageAccountsFragment);
         });
 
         changePetLayout.setOnClickListener(v -> {
