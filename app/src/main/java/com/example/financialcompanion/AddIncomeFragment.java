@@ -122,6 +122,13 @@ public class AddIncomeFragment extends Fragment {
         // Get the category name from the input field
         String categoryName = String.valueOf(categoryNameEditText.getText());
 
+        // Check if the category name is empty or null
+        if (categoryName.isEmpty()) {
+            // Show a toast message and stop the action
+            Toast.makeText(getContext(), "Category name cannot be empty", Toast.LENGTH_SHORT).show();
+            return; // Exit the method or stop further execution
+        }
+
         // Get the selected transaction type from the spinner (Income or Expense)
         String transactionType = categoryTypeSpinner.getSelectedItem().toString().toLowerCase(); // Convert to lowercase ("income" or "expense")
 

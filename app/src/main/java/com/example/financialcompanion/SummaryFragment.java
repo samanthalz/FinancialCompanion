@@ -40,6 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -400,6 +401,8 @@ public class SummaryFragment extends Fragment {
         for (int color : colors) {
             colorList.add(color);
         }
+
+        Collections.shuffle(colorList);
 
         // Assign colors to each entry
         dataSet.setColors(colorList);
