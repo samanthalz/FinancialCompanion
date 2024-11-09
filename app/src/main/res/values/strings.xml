@@ -97,4 +97,10 @@
     <string name="course_intro">Hi! Lets find some courses and learn to earn together!</string>
     <string name="minute_read">Min read</string>
 
+    <string name="edit_icon">edit icon</string>
+    <string name="category">category</string>
+    <string name="save_budget">Save Budget</string>
+    <string name="enter_budget_amount">Enter Budget Amount</string>
+    <string name="total_budget">Total Budget</string>
+    <string name="total_spent">Total Spent</string>
 </resources>

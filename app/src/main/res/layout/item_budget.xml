@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/very_light_green_rect"
+    android:layout_marginBottom="12dp"
+    android:padding="16dp">
+
+    <!-- Left Icon -->
+    <ImageView
+        android:id="@+id/iconImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/infoLayout"
+        android:layout_marginEnd="20dp"/>
+
+    <!-- Center layout containing icon name, limit, spent, and remaining -->
+    <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/iconImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="8dp">
+
+        <!-- Icon Name and Edit Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start|center_vertical">
+
+            <TextView
+                android:id="@+id/iconNameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Icon Name"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <!-- Edit Icon -->
+            <ImageView
+                android:id="@+id/editIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_more_horiz_24_black"
+                android:contentDescription="@string/edit_icon"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_gravity="end" />
+        </LinearLayout>
+
+        <!-- Limit, Spent, and Remaining Amounts -->
+        <TextView
+            android:id="@+id/limitTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limit: RM0.00"
+            android:textSize="14sp"
+            android:paddingTop="4dp" />
+
+        <TextView
+            android:id="@+id/spentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Spent: RM0.00"
+            android:textSize="14sp"
+            android:paddingTop="2dp" />
+
+        <TextView
+            android:id="@+id/remainingTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remaining: RM0.00"
+            android:textSize="14sp"
+            android:paddingTop="2dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
