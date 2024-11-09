@@ -17,8 +17,11 @@ import androidx.media3.common.util.UnstableApi;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.List;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -42,16 +45,13 @@ public class SignupActivity extends AppCompatActivity {
         signupButton = findViewById(R.id.signup_button);
         loginRedirectText = findViewById(R.id.loginRedirectText);
 
-
         signupButton.setOnClickListener(new View.OnClickListener() {
-            @OptIn(markerClass = UnstableApi.class)
             @Override
             public void onClick(View view) {
                 if (!validateField(signupName, "name") |
                         !validateField(signupEmail, "email") |
                         !validateField(signupUsername, "username") |
                         !validateField(signupPassword, "password")) {
-                    // Show error messages to user based on validation failures
                     return;
                 }
 
@@ -60,37 +60,51 @@ public class SignupActivity extends AppCompatActivity {
                 String username = signupUsername.getText().toString().trim();
                 String password = signupPassword.getText().toString().trim();
 
-                auth.createUserWithEmailAndPassword(email, password)
+                // Check if email is already in use
+                auth.fetchSignInMethodsForEmail(email)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                FirebaseUser user = auth.getCurrentUser();
-                                if (user != null) {
-                                    // Send verification email
-                                    user.sendEmailVerification()
-                                            .addOnCompleteListener(verificationTask -> {
-                                                if (verificationTask.isSuccessful()) {
-                                                    androidx.media3.common.util.Log.d(TAG, "Verification email sent to " + user.getEmail());
-                                                    Intent intent = new Intent(SignupActivity.this, EmailVerificationActivity.class);
-                                                    intent.putExtra("email", email);
-                                                    intent.putExtra("name", name);
-                                                    intent.putExtra("username", username);
-                                                    startActivity(intent);
-                                                    finish();
+                                List<String> signInMethods = task.getResult().getSignInMethods();
+                                if (signInMethods != null && !signInMethods.isEmpty()) {
+                                    // Email is already in use
+                                    signupEmail.setError("Email is already registered");
+                                } else {
+                                    // Email is not in use, proceed with sign-up
+                                    auth.createUserWithEmailAndPassword(email, password)
+                                            .addOnCompleteListener(task1 -> {
+                                                if (task1.isSuccessful()) {
+                                                    FirebaseUser user = auth.getCurrentUser();
+                                                    if (user != null) {
+                                                        user.sendEmailVerification()
+                                                                .addOnCompleteListener(verificationTask -> {
+                                                                    if (verificationTask.isSuccessful()) {
+                                                                        Log.d(TAG, "Verification email sent to " + user.getEmail());
+                                                                        Intent intent = new Intent(SignupActivity.this, EmailVerificationActivity.class);
+                                                                        intent.putExtra("email", email);
+                                                                        intent.putExtra("name", name);
+                                                                        intent.putExtra("username", username);
+                                                                        startActivity(intent);
+                                                                        finish();
+                                                                    } else {
+                                                                        Log.e(TAG, "sendEmailVerification failed!", verificationTask.getException());
+                                                                        Toast.makeText(SignupActivity.this, "Failed to send verification email. Please try again.", Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+                                                    }
                                                 } else {
-                                                    androidx.media3.common.util.Log.e(TAG, "sendEmailVerification failed!", verificationTask.getException());
-                                                    // Display error message to the user
-                                                    Toast.makeText(SignupActivity.this, "Failed to send verification email. Please try again.", Toast.LENGTH_SHORT).show();
-                                                    // You might want to add more detailed error handling based on the exception
+                                                    Log.w(TAG, "createUserWithEmailAndPassword:failure", task1.getException());
+                                                    Toast.makeText(SignupActivity.this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                 }
                             } else {
-                                // Handle registration error (e.g., display user-friendly error message)
-                                Log.w(TAG, "createUserWithEmailAndPassword:failure", task.getException());
+                                Log.e(TAG, "fetchSignInMethods failed", task.getException());
+                                Toast.makeText(SignupActivity.this, "Failed to check email. Please try again.", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
         });
+
 
         loginRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,8 +145,20 @@ public class SignupActivity extends AppCompatActivity {
                 if (val.isEmpty()) {
                     field.setError("Password cannot be empty");
                     return false;
-                } else if (val.length() < 6) {
-                    field.setError("Password must be at least 6 characters");
+                } else if (val.length() < 8) {
+                    field.setError("Password must be at least 8 characters");
+                    return false;
+                } else if (!val.matches(".*[A-Z].*")) {
+                    field.setError("Password must contain at least one uppercase letter");
+                    return false;
+                } else if (!val.matches(".*[a-z].*")) {
+                    field.setError("Password must contain at least one lowercase letter");
+                    return false;
+                } else if (!val.matches(".*\\d.*")) {
+                    field.setError("Password must contain at least one number");
+                    return false;
+                } else if (!val.matches(".*[@#$%^&+=!].*")) {
+                    field.setError("Password must contain at least one special character (@#$%^&+=!)");
                     return false;
                 }
                 break;

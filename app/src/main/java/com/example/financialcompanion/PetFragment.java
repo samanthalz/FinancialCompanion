@@ -160,7 +160,6 @@ public class PetFragment extends Fragment {
             // Update the pet image view with the new image resource
             petImageView.setImageResource(imageResourceId);
 
-            // Optionally, save the selected image ID to Firebase (if needed)
             userRef.child("selectedPetImage").setValue(imageResourceId);
         } else {
             Log.e("PetFragment", "Invalid image resource for pet type: " + petType + " and selectedItemName: " + selectedItemName);

@@ -65,10 +65,10 @@ public class AccountFragment extends Fragment {
 
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        // Load user details from SharedPreferences
+        // Load user details from SharedPreferences (no activity required)
         loadUserDetailsFromPreferences();
 
-        // Load user details from Firebase (optional, if you want to refresh data)
+        // Load user details from Firebase to refresh data
         loadUserDetails();
 
         logoutButton = view.findViewById(R.id.logout_button);
@@ -101,15 +101,16 @@ public class AccountFragment extends Fragment {
     }
 
     private void loadUserDetails() {
+        // This method will load the data from Firebase and update UI
         databaseReference.child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
+                if (isAdded() && dataSnapshot.exists()) { // Check if fragment is attached before updating UI
                     String name = dataSnapshot.child("username").getValue(String.class);
                     String email = dataSnapshot.child("email").getValue(String.class);
                     Integer profileImageVectorId = dataSnapshot.child("profileImageVectorId").getValue(Integer.class);
 
-                    // Save to SharedPreferences
+                    // Save to SharedPreferences to persist for next session
                     SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username", name);
@@ -132,27 +133,37 @@ public class AccountFragment extends Fragment {
     }
 
     private void loadUserDetailsFromPreferences() {
+        // This method will load user details from SharedPreferences, no need for fragment attachment check
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE);
         String name = sharedPreferences.getString("username", "Default Name");
         String email = sharedPreferences.getString("email", "default@example.com");
         int profileImageVectorId = sharedPreferences.getInt("profileImageVectorId", R.drawable.avatar_batman_hero_comics);
 
         // Display user details
-        usernameTextView.setText(name);
-        userEmailTextView.setText(email);
-        profilePicture.setImageResource(profileImageVectorId);
+        if (isAdded()) {  // Check if fragment is attached before updating UI
+            usernameTextView.setText(name);
+            userEmailTextView.setText(email);
+            profilePicture.setImageResource(profileImageVectorId);
+        }
     }
 
-    // Method to handle logout
     private void logout() {
-        // Sign out from Firebase
-        FirebaseAuth.getInstance().signOut();
+        if (isAdded()) { // Ensure fragment is attached to an activity
+            // Sign out from Firebase
+            FirebaseAuth.getInstance().signOut();
 
-        // Navigate to the Login Activity
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        requireActivity().finish(); // Close the current activity
+            // Clear SharedPreferences
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear(); // Clears all data in SharedPreferences
+            editor.apply(); // Apply the changes
+
+            // Navigate to the Login Activity
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            requireActivity().finish(); // Close the current activity
+        }
     }
 
 }

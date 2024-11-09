@@ -1,19 +1,28 @@
 package com.example.financialcompanion;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHolder> {
 
@@ -33,6 +42,7 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
         public TextView goalAmountTextView;
         public TextView descriptionLabelTextView;
         public TextView descriptionTextView;
+        ImageView deleteIcon;
 
         public GoalViewHolder(View itemView) {
             super(itemView);
@@ -43,6 +53,7 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
             goalAmountTextView = itemView.findViewById(R.id.goalAmount);
             descriptionLabelTextView = itemView.findViewById(R.id.goalDescriptionLabel);
             descriptionTextView = itemView.findViewById(R.id.goalDescription);
+            deleteIcon = itemView.findViewById(R.id.deleteIcon);
         }
     }
 
@@ -99,10 +110,53 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
             }
         }
 
-
-        // holder.totalSavedTextView.setText(String.format("RM%.2f", goal.getTotalSaved()));
+        // Format the goal amount and description
         holder.goalAmountTextView.setText(String.format("RM%.2f", goal.getAmount()));
         holder.descriptionTextView.setText(goal.getDescription());
+
+        // Set up the delete icon
+        holder.deleteIcon.setOnClickListener(v -> {
+            // Show confirmation dialog
+            new AlertDialog.Builder(holder.itemView.getContext())  // Use itemView context to avoid context leaks
+                    .setTitle("Delete Goal")
+                    .setMessage("Are you sure you want to delete this goal?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // If user confirms, delete the goal from Firebase
+                        deleteGoalFromFirebase(holder.itemView.getContext(), goal.getId());
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void deleteGoalFromFirebase(Context context, String goalId) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : null;
+
+        if (userId != null) {
+            // Get the reference to the goal in Firebase
+            DatabaseReference goalRef = FirebaseDatabase.getInstance().getReference("users")
+                    .child(userId)
+                    .child("goals")
+                    .child(goalId);
+
+            // Delete the goal from Firebase
+            goalRef.removeValue()
+                    .addOnSuccessListener(aVoid -> {
+                        // Goal successfully deleted, notify adapter
+                        goalsList.removeIf(goal -> goal.getId().equals(goalId));
+                        notifyDataSetChanged();
+                        Toast.makeText(context, "Goal deleted successfully", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle failure
+                        Toast.makeText(context, "Failed to delete goal", Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

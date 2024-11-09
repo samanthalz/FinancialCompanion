@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +30,33 @@ public class ExpenseFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private SharedViewModel viewModel;
+    private String userId;
+
+    // Define the listener interface
+    public interface OnCreateIconClickListener {
+        void onCreateIconClicked();
+    }
+
+    private IncomeFragment.OnCreateIconClickListener createIconClickListener;
+
+    // Set the listener from the adapter
+    public void setOnCreateIconClickListener(IncomeFragment.OnCreateIconClickListener listener) {
+        this.createIconClickListener = listener;
+    }
+
+    public void navigateToAddIncomeFragment() {
+        // Navigate to AddIncomeFragment to cover the entire screen
+        AddIncomeFragment addIncomeFragment = new AddIncomeFragment();
+
+        FragmentTransaction transaction = requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction();
+
+        // Replace the nav_host_fragment to display AddIncomeFragment full-screen
+        transaction.replace(R.id.nav_host_fragment, addIncomeFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,7 +67,7 @@ public class ExpenseFragment extends Fragment {
         // Set up the adapter with the drawable resources and category names
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
 
-       String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+       userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         // Check if categories are already set
         if (viewModel.getExpenseCategories().getValue() == null) {
             fetchCategories(userId); // Call this method to fetch categories
@@ -48,6 +77,20 @@ public class ExpenseFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Set up the FragmentResultListener to listen for the refresh signal
+        getParentFragmentManager().setFragmentResultListener("refreshRequest", getViewLifecycleOwner(), (requestKey, result) -> {
+            // Check if the refresh signal is received
+            if (result.containsKey("refresh")) {
+                // Refresh the RecyclerView here
+                fetchCategories(userId);
+            }
+        });
     }
 
     private void fetchCategories(String userId) {
@@ -120,6 +163,14 @@ public class ExpenseFragment extends Fragment {
         // Create and set the CategoryAdapter
         CategoryAdapter categoryAdapter = new CategoryAdapter(vectorDrawableResources, categoryNames, viewModel);
         recyclerView.setAdapter(categoryAdapter);
+        // Set the listener to the adapter
+        categoryAdapter.setOnCreateIconClickListener(new CategoryAdapter.OnCreateIconClickListener() {
+            @Override
+            public void onCreateIconClicked() {
+                // When the listener is triggered, call the method in the fragment
+                navigateToAddIncomeFragment();
+            }
+        });
     }
 
 }

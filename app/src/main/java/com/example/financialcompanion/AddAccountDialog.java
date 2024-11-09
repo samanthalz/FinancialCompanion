@@ -37,6 +37,10 @@ public class AddAccountDialog extends DialogFragment {
     private TextInputEditText initialAmountInput;
     private LinearLayout iconSelectionContainer;
     private ImageView selectedIconImageView;
+    private Account accountToEdit;
+    private Button deleteButton;
+    private int selectedIconId;
+
 
     @NonNull
     @Override
@@ -63,6 +67,10 @@ public class AddAccountDialog extends DialogFragment {
         iconSelectionContainer = dialogView.findViewById(R.id.icon_selection_container);
         Button cancelButton = dialogView.findViewById(R.id.cancel_button);
         Button saveButton = dialogView.findViewById(R.id.save_button);
+        deleteButton = dialogView.findViewById(R.id.delete_button);
+
+        // Initially hide the delete button
+        deleteButton.setVisibility(View.GONE);
 
         // Set up icon selection
         int[] iconIds = {
@@ -124,6 +132,13 @@ public class AddAccountDialog extends DialogFragment {
             iconSelectionContainer.addView(iconImageView);
         }
 
+        // If we are editing an account, prefill the fields
+        if (accountToEdit != null) {
+            accountNameInput.setText(accountToEdit.getAccountName());
+            initialAmountInput.setText(String.valueOf(accountToEdit.getBalance()));
+            deleteButton.setVisibility(View.VISIBLE); // Show delete button
+        }
+
         // Set up cancel button listener
         cancelButton.setOnClickListener(v -> dismiss());
 
@@ -136,32 +151,41 @@ public class AddAccountDialog extends DialogFragment {
                 return;
             }
 
-            double initialAmount = Double.parseDouble(initialAmountStr);
-            String accountId = UUID.randomUUID().toString(); // Generate unique ID for the account
-            int selectedIconResId = (int) selectedIconImageView.getTag(); // Retrieve the icon ID from the tag
+            if (accountToEdit != null) {
+                // Update the existing account
+                accountToEdit.setAccountName(String.valueOf(accountNameInput.getText()));
+                accountToEdit.setBalance(initialAmountInput.getText().length());
+                accountToEdit.setIcon_id((Integer) selectedIconImageView.getTag());
 
-            Account newAccount = new Account(accountId, accountName, initialAmount, selectedIconResId);
+                // Update the account in the database
+                updateAccountInDatabase(accountToEdit);
+            } else {
+                double initialAmount = Double.parseDouble(initialAmountStr);
+                String accountId = UUID.randomUUID().toString(); // Generate unique ID for the account
+                int selectedIconResId = (int) selectedIconImageView.getTag(); // Retrieve the icon ID from the tag
 
-            // Update ViewModel
-            SharedViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-            accountViewModel.addAccount(newAccount);
+                Account newAccount = new Account(accountId, accountName, initialAmount, selectedIconResId);
 
-            // Save to Firebase
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("accounts");
+                // Update ViewModel
+                SharedViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+                accountViewModel.addAccount(newAccount);
 
-            // Add the new account to Firebase
-            databaseReference.child(accountId).setValue(newAccount)
-                    .addOnSuccessListener(aVoid -> {
-                        // Success callback
-                        Log.d("AccountInfo", "Account saved successfully to Firebase");
-                    })
-                    .addOnFailureListener(e -> {
-                        // Failure callback
-                        Log.e("AccountInfo", "Failed to save account to Firebase: " + e.getMessage());
-                    });
+                // Save to Firebase
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("accounts");
 
+                // Add the new account to Firebase
+                databaseReference.child(accountId).setValue(newAccount)
+                        .addOnSuccessListener(aVoid -> {
+                            // Success callback
+                            Log.d("AccountInfo", "Account saved successfully to Firebase");
+                        })
+                        .addOnFailureListener(e -> {
+                            // Failure callback
+                            Log.e("AccountInfo", "Failed to save account to Firebase: " + e.getMessage());
+                        });
+            }
 
             // Clear selection and dismiss
             selectedIconImageView.setBackgroundColor(Color.TRANSPARENT);
@@ -170,7 +194,59 @@ public class AddAccountDialog extends DialogFragment {
             dismiss(); // Close the dialog
         });
 
+        // Delete button logic
+        deleteButton.setOnClickListener(v -> {
+            if (accountToEdit != null && !accountToEdit.getAccountName().equals("Savings")) {
+                // Proceed with delete if it's not the "Savings" account
+                FirebaseDatabase.getInstance().getReference("users")
+                        .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .child("accounts")
+                        .child(accountToEdit.getId())
+                        .removeValue()
+                        .addOnSuccessListener(aVoid -> {
+                            // Successfully deleted account from Firebase
+                            Log.d("AccountInfo", "Account deleted successfully");
+                            // Update the ViewModel or RecyclerView as needed
+                        })
+                        .addOnFailureListener(e -> {
+                            // Failure callback
+                            Log.e("AccountInfo", "Failed to delete account from Firebase: " + e.getMessage());
+                        });
+
+                dismiss(); // Close the dialog after deleting
+            } else {
+                Toast.makeText(getContext(), "The Savings account cannot be deleted", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         return dialog;
+    }
+
+    // Method to update the account in Firebase
+    private void updateAccountInDatabase(Account account) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+
+        // Get a reference to the user's accounts in Firebase
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(userId).child("accounts");
+
+        // Use the account's ID to update the specific account in Firebase
+        String accountId = account.getId(); // Assuming the account has a valid ID
+        databaseReference.child(accountId).setValue(account)
+                .addOnSuccessListener(aVoid -> {
+                    // Success callback
+                    Log.d("AccountInfo", "Account updated successfully in Firebase");
+                })
+                .addOnFailureListener(e -> {
+                    // Failure callback
+                    Log.e("AccountInfo", "Failed to update account in Firebase: " + e.getMessage());
+                });
+    }
+
+    // Setter method to pass the account details for editing
+    public void setAccountToEdit(Account account) {
+        this.accountToEdit = account;
     }
 
     @Override
@@ -192,6 +268,4 @@ public class AddAccountDialog extends DialogFragment {
             Log.d("DialogDimensions", "Width: " + params.width + ", Height: " + params.height);
         }
     }
-
-
 }

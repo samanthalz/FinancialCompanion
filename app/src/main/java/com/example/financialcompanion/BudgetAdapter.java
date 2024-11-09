@@ -1,12 +1,17 @@
 package com.example.financialcompanion;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +23,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder> {
@@ -55,16 +62,10 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         // Get the budget at the given position
         Budget budget = budgetSnapshots.get(position);
 
-        // Log to check if budget is not null
-        Log.d(TAG, "Binding budget at position " + position + ": " + (budget != null ? budget.getCategory() : "null"));
-
         if (budget != null) {
             // Bind the data to the views in the holder
             holder.categoryTextView.setText(budget.getCategory());
-            holder.amountTextView.setText("RM " + budget.getAmount());
-
-            // Log to check the category and amount
-            Log.d(TAG, "Budget data: Category = " + budget.getCategory() + ", Amount = " + budget.getAmount());
+            holder.amountTextView.setText("Budget: RM " + budget.getAmount());
 
             // Fetch categoryId based on category name
             getCategoryIdByName(budget.getCategory(), new CategoryIdCallback() {
@@ -73,9 +74,6 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
                     getSpentAmountForCategory(categoryId, new OnTotalSpentCalculatedListener() {
                         @Override
                         public void onTotalSpentCalculated(double totalSpent) {
-                            Log.d(TAG, "Final amount = " + totalSpent);
-
-                            // Update the spent and remaining views after getting the total spent
                             holder.spentTextView.setText("Spent: RM " + totalSpent);
                             double remainingAmount = budget.getAmount() - totalSpent;
                             holder.remainingTextView.setText("Remaining: RM " + remainingAmount);
@@ -83,6 +81,94 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
                         }
                     });
                 }
+            });
+
+            // Set the edit icon click listener inside onBindViewHolder
+            holder.editIcon.setOnClickListener(v -> {
+                // Create the dialog for editing the budget
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+                // Create a layout to hold the EditText
+                LinearLayout layout = new LinearLayout(v.getContext());
+                layout.setOrientation(LinearLayout.VERTICAL);
+
+                // Create the EditText for user input
+                EditText editText = new EditText(v.getContext());
+                editText.setHint("Enter new budget amount");
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                layout.addView(editText);
+
+                // Set the dialog's view to the layout we created
+                builder.setView(layout);
+                builder.setTitle("Change Budget");
+
+                // Set up the "OK" button to update the budget amount
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    String newBudget = editText.getText().toString();
+                    if (!newBudget.isEmpty()) {
+                        double updatedBudget = Double.parseDouble(newBudget);
+
+                        // Update the budget object with the new balance
+                        budget.setAmount(updatedBudget);
+
+                        // Get the current user's UID from FirebaseAuth
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference budgetRef = database.getReference("users").child(userId).child("budget").child(budget.getId());
+
+                        // Create a map of the updates
+                        Map<String, Object> updatedBudgetMap = new HashMap<>();
+                        updatedBudgetMap.put("amount", updatedBudget);  // Update the amount field
+
+                        // Apply the update to Firebase
+                        budgetRef.updateChildren(updatedBudgetMap)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "Budget updated successfully in Firebase");
+                                    // Optionally, refresh the RecyclerView or perform other UI updates
+                                    notifyItemChanged(position);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Failed to update budget in Firebase: " + e.getMessage());
+                                    Toast.makeText(v.getContext(), "Failed to update budget", Toast.LENGTH_SHORT).show();
+                                });
+
+                        // And notify the adapter to refresh the view
+                        notifyItemChanged(position);
+                    } else {
+                        Toast.makeText(v.getContext(), "Please enter a valid amount", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                // Set up the "Cancel" button to dismiss the dialog
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+                // Add a "Delete" button to the dialog
+                builder.setNeutralButton("Delete", (dialog, which) -> {
+                    // Get the current user's UID from FirebaseAuth
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference budgetRef = database.getReference("users").child(userId).child("budget").child(budget.getId());
+
+                    // Remove the budget from Firebase
+                    budgetRef.removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Budget deleted successfully from Firebase");
+                                // Optionally, remove from the RecyclerView as well
+                                budgetSnapshots.remove(position); // Remove from the list
+                                notifyItemRemoved(position); // Refresh the RecyclerView
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to delete budget from Firebase: " + e.getMessage());
+                                Toast.makeText(v.getContext(), "Failed to delete budget", Toast.LENGTH_SHORT).show();
+                            });
+                });
+
+                // Show the dialog
+                builder.create().show();
             });
         }
     }
@@ -182,7 +268,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     // ViewHolder for the budget
     public static class BudgetViewHolder extends RecyclerView.ViewHolder {
         TextView categoryTextView, amountTextView, spentTextView, remainingTextView;
-        ImageView iconImageView;
+        ImageView iconImageView, editIcon;
 
         public BudgetViewHolder(View itemView) {
             super(itemView);
@@ -191,6 +277,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             spentTextView = itemView.findViewById(R.id.spentTextView);
             remainingTextView = itemView.findViewById(R.id.remainingTextView);
             iconImageView = itemView.findViewById(R.id.iconImageView);
+            editIcon = itemView.findViewById(R.id.editIcon);
         }
     }
 }

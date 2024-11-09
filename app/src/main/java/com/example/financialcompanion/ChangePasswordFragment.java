@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.financialcompanion.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -73,6 +74,60 @@ public class ChangePasswordFragment extends Fragment {
         sendCodeButton.setOnClickListener(v -> sendPasswordResetEmail());
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Ensure the activity is not null
+        if (getActivity() != null) {
+            // Hide the BottomNavigationView
+            View bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setVisibility(View.GONE);
+            }
+
+            // Hide the BottomAppBar using View Binding (replace `binding` with your binding instance)
+            ActivityMainBinding binding = ((MainActivity) getActivity()).binding;
+            if (binding != null) {
+                binding.bottomAppBar.setVisibility(View.GONE);
+                binding.fabAdd.setVisibility(View.GONE);
+            }
+
+            // Hide the Financial Summary Layout
+            View financialSummaryLayout = getActivity().findViewById(R.id.financial_summary_layout);
+            if (financialSummaryLayout != null) {
+                financialSummaryLayout.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Ensure the activity is not null
+        if (getActivity() != null) {
+            // Show the BottomNavigationView again
+            View bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+            }
+
+            // Show the BottomAppBar and FAB using View Binding (replace `binding` with your binding instance)
+            ActivityMainBinding binding = ((MainActivity) getActivity()).binding;
+            if (binding != null) {
+                binding.bottomAppBar.setVisibility(View.VISIBLE);
+                binding.fabAdd.setVisibility(View.VISIBLE);
+            }
+
+            // Show the Financial Summary Layout again
+            View financialSummaryLayout = getActivity().findViewById(R.id.financial_summary_layout);
+            if (financialSummaryLayout != null) {
+                financialSummaryLayout.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void sendPasswordResetEmail() {

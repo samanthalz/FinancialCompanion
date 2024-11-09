@@ -3,6 +3,7 @@ package com.example.financialcompanion;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class IncomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private SharedViewModel viewModel;
+    private String userId;
 
     // Define the listener interface
     public interface OnCreateIconClickListener {
@@ -64,7 +66,7 @@ public class IncomeFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
 
-        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         Log.d("IncomeFragment", "User ID: " + userId); // Log the user ID
 
         // Check if categories are already set
@@ -80,6 +82,20 @@ public class IncomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Set up the FragmentResultListener to listen for the refresh signal
+        getParentFragmentManager().setFragmentResultListener("refreshRequest", getViewLifecycleOwner(), (requestKey, result) -> {
+            // Check if the refresh signal is received
+            if (result.containsKey("refresh")) {
+                // Refresh the RecyclerView here
+                fetchCategories(userId);
+            }
+        });
+    }
+
     private void fetchCategories(String userId) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users")
                 .child(userId).child("categories").child("income");
@@ -87,7 +103,7 @@ public class IncomeFragment extends Fragment {
         Log.d("IncomeFragment", "Attempting to fetch income categories from Firebase...");
 
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<Category> categories = new ArrayList<>();

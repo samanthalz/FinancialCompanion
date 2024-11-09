@@ -4,9 +4,12 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +21,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.financialcompanion.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,11 +53,26 @@ public class ManageAccountsFragment extends Fragment {
 
         // Initialize the RecyclerView
         accountRecyclerView = view.findViewById(R.id.account_recycler_view);
-        //accountRecyclerView.setBackgroundColor(Color.WHITE);
+
+        // Create the listener that will handle item clicks
+        View.OnClickListener accountClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get the clicked account from the tag
+                Account clickedAccount = (Account) v.getTag();
+
+                if (clickedAccount != null) {
+                    // Handle account click (e.g., open AddAccountDialog)
+                    AddAccountDialog dialog = new AddAccountDialog();
+                    dialog.setAccountToEdit(clickedAccount);  // Pass the clicked account to the dialog
+                    dialog.show(getChildFragmentManager(), "edit_account");
+                }
+            }
+        };
 
         // Set up an empty list and adapter
         accountList = new ArrayList<>();
-        accountAdapter = new AccountAdapter(accountList);
+        accountAdapter = new AccountAdapter(accountList, accountClickListener);
         accountRecyclerView.setAdapter(accountAdapter);
 
         // Observe accounts in ViewModel to update RecyclerVie  // Update adapter with new data automatically
@@ -79,6 +98,55 @@ public class ManageAccountsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         fetchLatestAccounts();
+
+        // Ensure the activity is not null
+        if (getActivity() != null) {
+            // Hide the BottomNavigationView
+            View bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setVisibility(View.GONE);
+            }
+
+            // Hide the BottomAppBar using View Binding (replace `binding` with your binding instance)
+            ActivityMainBinding binding = ((MainActivity) getActivity()).binding;
+            if (binding != null) {
+                binding.bottomAppBar.setVisibility(View.GONE);
+                binding.fabAdd.setVisibility(View.GONE);
+            }
+
+            // Hide the Financial Summary Layout
+            View financialSummaryLayout = getActivity().findViewById(R.id.financial_summary_layout);
+            if (financialSummaryLayout != null) {
+                financialSummaryLayout.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Ensure the activity is not null
+        if (getActivity() != null) {
+            // Show the BottomNavigationView again
+            View bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+            }
+
+            // Show the BottomAppBar and FAB using View Binding (replace `binding` with your binding instance)
+            ActivityMainBinding binding = ((MainActivity) getActivity()).binding;
+            if (binding != null) {
+                binding.bottomAppBar.setVisibility(View.VISIBLE);
+                binding.fabAdd.setVisibility(View.VISIBLE);
+            }
+
+            // Show the Financial Summary Layout again
+            View financialSummaryLayout = getActivity().findViewById(R.id.financial_summary_layout);
+            if (financialSummaryLayout != null) {
+                financialSummaryLayout.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
 
@@ -119,6 +187,7 @@ public class ManageAccountsFragment extends Fragment {
                 Log.d("ManageAccountsFragment", "Navigating back to previous fragment.");
             }
         });
+
     }
 
 

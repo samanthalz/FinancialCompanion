@@ -106,6 +106,8 @@
     <string name="category_name">Category Name</string>
     <string name="transaction_type">Transaction Type</string>
     <string name="save_button">save_button</string>
+    <string name="delete_goal">delete goal</string>
+    <string name="forgot_password">Forgot Password</string>
     <string-array name="transaction_types">
         <item>Income</item>
         <item>Expense</item>

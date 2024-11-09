@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -103,7 +104,12 @@ public class AddIncomeFragment extends Fragment {
             // Perform the save action (e.g., save data to the database)
             saveDataToDatabase();
 
-            // After saving, navigate back to the previous fragment (like the back arrow does)
+            // Notify the previous fragment to refresh its RecyclerView (using FragmentResult)
+            Bundle result = new Bundle();
+            result.putString("refresh", "true");  // Signal to refresh the RecyclerView
+            getParentFragmentManager().setFragmentResult("refreshRequest", result);
+
+            // After saving, navigate back to the previous fragment
             if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
                 requireActivity().getSupportFragmentManager().popBackStack();
             }
@@ -138,11 +144,24 @@ public class AddIncomeFragment extends Fragment {
                 .setValue(category)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        // Log success and show a toast message
                         Log.d("AddIncomeFragment", "Category saved successfully");
+
+                        // Use getActivity() to ensure a valid context
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "New category saved successfully", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
+                        // Log error and show a toast message
                         Log.d("AddIncomeFragment", "Error saving category", task.getException());
+
+                        // Use getActivity() to ensure a valid context
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "Error saving category: " + task.getException(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
+
     }
 
     private void fetchCategories(String userId) {
@@ -225,12 +244,9 @@ public class AddIncomeFragment extends Fragment {
         CategoryAdapter categoryAdapter = new CategoryAdapter(vectorDrawableResources, categoryNames, viewModel);
 
         // Set the listener as an anonymous class
-        categoryAdapter.setOnIconSelectedListener(new CategoryAdapter.OnIconSelectedListener() {
-            @Override
-            public void onIconSelected(int selectedIconId) {
-                selectedVectorResource = selectedIconId;
-                Log.d("AddIncomeFragment", "Selected Icon ID: " + selectedIconId);
-            }
+        categoryAdapter.setOnIconSelectedListener(selectedIconId -> {
+            selectedVectorResource = selectedIconId;
+            Log.d("AddIncomeFragment", "Selected Icon ID: " + selectedIconId);
         });
 
         recyclerView.setAdapter(categoryAdapter);

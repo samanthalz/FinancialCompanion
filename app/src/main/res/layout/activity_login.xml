@@ -80,6 +80,20 @@
                 android:layout_marginTop="10dp"
                 android:textColor="@color/green"/>
 
+            <!-- Forgot Password Link -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/forgotPasswordText"
+                android:text="@string/forgot_password"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:textSize="12sp"
+                android:textColor="@color/grey"
+                android:clickable="true"
+                android:focusable="true"/>
+
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

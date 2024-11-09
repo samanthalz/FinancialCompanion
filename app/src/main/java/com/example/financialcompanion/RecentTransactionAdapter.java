@@ -50,8 +50,8 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         Transaction transaction = transactionList.get(position);
         holder.bind(transaction, expenseCategories);
 
-        // Set the onClickListener for nameDateLayout
-        holder.nameDateLayout.setOnClickListener(v -> showDeleteDialog(holder, transaction));
+        // Set the onClickListener for deleteIcon
+        holder.deleteIcon.setOnClickListener(v -> showDeleteDialog(holder, transaction));
     }
 
     @Override
@@ -125,7 +125,7 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         private final TextView transactionDateTimeTextView;
         private final TextView transactionAmountTextView;
         private final ImageView transactionIcon;
-        private final LinearLayout nameDateLayout;
+        private final ImageView deleteIcon;
 
         public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,7 +133,7 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
             transactionDateTimeTextView = itemView.findViewById(R.id.transactionDateTimeTextView);
             transactionAmountTextView = itemView.findViewById(R.id.transactionAmountTextView);
             transactionIcon = itemView.findViewById(R.id.transactionIcon);
-            nameDateLayout = itemView.findViewById(R.id.name_date_layout);
+            deleteIcon = itemView.findViewById(R.id.deleteIcon);
 
         }
 

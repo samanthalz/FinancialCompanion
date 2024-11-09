@@ -15,9 +15,16 @@ import java.util.List;
 public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountViewHolder> {
 
     private List<Account> accountList;
+    private View.OnClickListener onClickListener;
 
-    public AccountAdapter(List<Account> accountList) {
+    // Define an interface for the item click listener
+    public interface OnAccountClickListener {
+        void onAccountClick(Account account);
+    }
+
+    public AccountAdapter(List<Account> accountList, View.OnClickListener listener) {
         this.accountList = accountList;
+        this.onClickListener = listener; // Set the listener
     }
 
     @NonNull
@@ -35,6 +42,10 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
         holder.accountName.setText(account.getAccountName());
         holder.accountBalance.setText("RM " + account.getBalance());
         holder.accountLogo.setImageResource(account.getIcon_id());
+
+        // Set the account as a tag and attach the listener
+        holder.itemView.setTag(account);  // Set the account object as the tag
+        holder.itemView.setOnClickListener(onClickListener);  // Set the listener
     }
 
     // Update the list of accounts and refresh the RecyclerView

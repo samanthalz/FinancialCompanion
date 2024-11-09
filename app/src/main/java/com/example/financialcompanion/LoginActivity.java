@@ -2,6 +2,8 @@ package com.example.financialcompanion;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +18,10 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText loginEmail, loginPassword;
     TextView signupRedirectText;
     Button loginButton;
+    TextView forgotPasswordText;
 
     FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -46,6 +52,11 @@ public class LoginActivity extends AppCompatActivity {
         loginPassword = findViewById(R.id.login_password);
         signupRedirectText = findViewById(R.id.signupRedirectText);
         loginButton = findViewById(R.id.login_button);
+        forgotPasswordText = findViewById(R.id.forgotPasswordText);
+
+        SpannableString content = new SpannableString(forgotPasswordText.getText());
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+        forgotPasswordText.setText(content);
 
         // Button click listener for user login
         loginButton.setOnClickListener(view -> {
@@ -58,6 +69,25 @@ public class LoginActivity extends AppCompatActivity {
         signupRedirectText.setOnClickListener(view -> {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
             startActivity(intent);
+        });
+
+        FirebaseApp.initializeApp(this);
+
+        // Forgot Password Click Listener
+        forgotPasswordText.setOnClickListener(v -> {
+            String email = loginEmail.getText().toString().trim();
+            if (email.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please enter your email address", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(LoginActivity.this, "Password reset email sent", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(LoginActivity.this, "Failed to send password reset email", Toast.LENGTH_SHORT).show();
+                    });
         });
     }
 
@@ -108,8 +138,27 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish(); // Finish LoginActivity so the user can't go back to it
             } else {
-                // Login failed, show error message
-                Toast.makeText(LoginActivity.this, "Login failed: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                // Login failed, handle different error cases
+                String errorMessage;
+                try {
+                    throw Objects.requireNonNull(task.getException());
+                } catch (FirebaseAuthInvalidUserException e) {
+                    // Email is not registered
+                    errorMessage = "No account found with this email. Please sign up first.";
+                } catch (FirebaseAuthInvalidCredentialsException e) {
+                    // Invalid email format or wrong password
+                    if (e.getErrorCode().equals("ERROR_INVALID_EMAIL")) {
+                        errorMessage = "Invalid email format. Please enter a valid email.";
+                    } else {
+                        errorMessage = "Incorrect password. Please try again.";
+                    }
+                } catch (Exception e) {
+                    // Other errors
+                    errorMessage = "Login failed. Please try again.";
+                }
+
+                // Show the specific error message as a toast
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
