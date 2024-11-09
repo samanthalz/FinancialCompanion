@@ -19,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -38,6 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -51,15 +54,17 @@ public class HomeFragment extends Fragment {
     private String userId;
     private SharedViewModel viewModel;
     private List<Category> expenseCategories;
-    TextView incomeTextView; // Use your actual TextView ID
-    TextView expenseTextView;
-    RecyclerView recentTransactionsRecyclerView;
+    private TextView incomeTextView; // Use your actual TextView ID
+    private TextView expenseTextView;
+    private TextView viewAllTextView;
+    private RecyclerView recentTransactionsRecyclerView;
     private final List<Transaction> transactionList = new ArrayList<>();
     private RecentTransactionAdapter adapter;
     private NestedScrollView financialSummaryLayout;
     private BottomNavigationView bottomNav;
     private Button accountButton;
     private Button goalButton;
+    private Button summaryButton;
     private NavController navController;
 
     @Override
@@ -70,6 +75,7 @@ public class HomeFragment extends Fragment {
 
         // Initialize the PieChart view from the inflated layout
         pieChart = view.findViewById(R.id.pieChart);
+
 
         // Get the user ID, ensuring the user is logged in
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
@@ -89,6 +95,10 @@ public class HomeFragment extends Fragment {
 
         incomeTextView = view.findViewById(R.id.incomeTextView);
         expenseTextView = view.findViewById(R.id.expenseTextView);
+
+        incomeTextView.setText(""); // Empty initially
+        expenseTextView.setText(""); // Empty initially
+
 
         // Obtain NavController from the current fragment
         navController = NavHostFragment.findNavController(this);
@@ -129,7 +139,8 @@ public class HomeFragment extends Fragment {
 
 
         // Initialize adapter with the empty list and set it to the RecyclerView
-        adapter = new RecentTransactionAdapter(transactionList, expenseCategories);
+        // adapter = new RecentTransactionAdapter(transactionList, expenseCategories);
+        adapter = new RecentTransactionAdapter(getContext(), transactionList, expenseCategories);
         recentTransactionsRecyclerView.setAdapter(adapter);
         fetchCategories(userId);
 
@@ -141,6 +152,12 @@ public class HomeFragment extends Fragment {
 
         goalButton = view.findViewById(R.id.goal_button);
         goalButton.setOnClickListener(v -> openGoalsFragment());
+
+        summaryButton = view.findViewById(R.id.summary_button);
+        summaryButton.setOnClickListener(v -> openSummaryFragment());
+
+        viewAllTextView = view.findViewById(R.id.viewAllTextView);
+        viewAllTextView.setOnClickListener(v -> openViewAllTransactionFragment());
     }
 
     @Override
@@ -212,6 +229,30 @@ public class HomeFragment extends Fragment {
 
         // Use NavController to navigate, passing the arguments
         navController.navigate(R.id.action_homeFragment_to_manageAccountsFragment, args);
+
+        hideNavigationBar();
+    }
+
+    private void openViewAllTransactionFragment() {
+
+        // Create a Bundle to pass the origin argument
+        Bundle args = new Bundle();
+        args.putString("originFragment", "home");  // Add the origin fragment info
+
+        // Use NavController to navigate, passing the arguments
+        navController.navigate(R.id.action_homeFragment_to_allTransactionFragment, args);
+
+        hideNavigationBar();
+    }
+
+    private void openSummaryFragment() {
+
+        // Create a Bundle to pass the origin argument
+        Bundle args = new Bundle();
+        args.putString("originFragment", "home");  // Add the origin fragment info
+
+        // Use NavController to navigate, passing the arguments
+        navController.navigate(R.id.action_homeFragment_to_summaryFragment, args);
 
         hideNavigationBar();
     }
@@ -475,18 +516,27 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateUI(float totalIncome, float totalExpense) {
+        // Create a fade-in animation
+        Animation fadeIn = new AlphaAnimation(0, 1); // From fully transparent to fully opaque
+        fadeIn.setDuration(100); // Adjust duration for smoothness
+
         if (totalIncome >= 0) {
             incomeTextView.setText(getString(R.string.rm_text_ph, totalIncome));
         } else {
-            incomeTextView.setText(getString(R.string.rm_text_ph, 0.00f)); // or handle negative values appropriately
+            incomeTextView.setText(getString(R.string.rm_text_ph, 0.00f));
         }
 
         if (totalExpense >= 0) {
             expenseTextView.setText(getString(R.string.rm_text_ph, totalExpense));
         } else {
-            expenseTextView.setText(getString(R.string.rm_text_ph, 0.00f)); // or handle negative values appropriately
+            expenseTextView.setText(getString(R.string.rm_text_ph, 0.00f));
         }
+
+        // Start the fade-in animation
+        incomeTextView.startAnimation(fadeIn);
+        expenseTextView.startAnimation(fadeIn);
     }
+
 
     private void setupPieChart(Map<String, Float> categoryExpenseMap, List<Category> categoryList) {
         List<PieEntry> entries = new ArrayList<>();
@@ -608,7 +658,7 @@ public class HomeFragment extends Fragment {
         }
 
         // Shuffle the color list to randomize the color assignment
-        //Collections.shuffle(colorList);
+        Collections.shuffle(colorList);
 
         // Assign colors to each entry, cycling through the shuffled list
         for (int i = 0; i < aggregatedEntries.size(); i++) {

@@ -6,6 +6,9 @@
     <color name="green">#75A488</color>
     <color name="circle_background_color">#E0FDF1</color>
     <color name="light_green_bg">#eef7eb</color>"
+    <color name="dark_green">#346051</color>"
+    <color name="yellow">#E3B53C</color>"
+    <color name="orange_star">#FF6905</color>"
     <color name="light_green">#8EBB87</color>
     <color name="orange">#FFA500</color>  <!-- Ongoing color -->
     <color name="goal_green">#4CAF50</color>  <!-- Success color -->

@@ -224,6 +224,9 @@ public class EmailVerificationActivity extends AppCompatActivity {
                     });
 
             reference.child(uid).child("petType").setValue("Cat");
+            reference.child(uid).child("profileImageVectorId").setValue(R.drawable.avatar_batman_hero_comics);
+            long currentTime = System.currentTimeMillis();
+            reference.child(uid).child("dateAccountCreated").setValue(currentTime);
 
             // Initialize and save categories for this user
             initializeCategories(uid);

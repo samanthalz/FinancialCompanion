@@ -1,16 +1,23 @@
 package com.example.financialcompanion;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,10 +26,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransactionAdapter.TransactionViewHolder> {
-    private final List<Transaction> transactionList;
+    private List<Transaction> transactionList;
     private List<Category> expenseCategories;
+    private Context context;
 
-    public RecentTransactionAdapter(List<Transaction> transactionList, List<Category> expenseCategories) {
+
+    public RecentTransactionAdapter(Context context, List<Transaction> transactionList, List<Category> expenseCategories) {
+        this.context = context;
         this.transactionList = transactionList;
         this.expenseCategories = expenseCategories;
     }
@@ -39,6 +49,9 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction transaction = transactionList.get(position);
         holder.bind(transaction, expenseCategories);
+
+        // Set the onClickListener for nameDateLayout
+        holder.nameDateLayout.setOnClickListener(v -> showDeleteDialog(holder, transaction));
     }
 
     @Override
@@ -59,12 +72,60 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
         notifyDataSetChanged(); // Notify the adapter that the data has changed
     }
 
+    // Show delete confirmation dialog
+    private void showDeleteDialog(RecyclerView.ViewHolder holder, Transaction transaction) {
+        String userid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+
+        new AlertDialog.Builder(context)
+                .setMessage("Do you want to delete this transaction of amount RM" + transaction.getAmount() + "?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Remove transaction from the database
+                    deleteTransaction(userid, transaction);
+
+                    // Update RecyclerView
+                    int position = holder.getBindingAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        transactionList.remove(position);
+                        notifyItemRemoved(position);
+                        dialog.dismiss();
+                    }
+
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+    }
+
+    // Method to delete transaction from the database
+    private void deleteTransaction(String userId, Transaction transaction) {
+        // Construct the database reference path using userId, accountId, and transaction ID
+        DatabaseReference transactionRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(userId)
+                .child("accounts")
+                .child(transaction.getAccountId())
+                .child("transactions")
+                .child(transaction.getId());
+
+        // Remove the transaction from the database
+        transactionRef.removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    // Handle successful deletion, e.g., show a message or update UI
+                    Log.d("DeleteTransaction", "Transaction deleted successfully.");
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure, e.g., show an error message
+                    Log.e("DeleteTransaction", "Failed to delete transaction", e);
+                });
+    }
+
 
     static class TransactionViewHolder extends RecyclerView.ViewHolder {
         private final TextView transactionTextView;
         private final TextView transactionDateTimeTextView;
         private final TextView transactionAmountTextView;
         private final ImageView transactionIcon;
+        private final LinearLayout nameDateLayout;
 
         public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +133,7 @@ public class RecentTransactionAdapter extends RecyclerView.Adapter<RecentTransac
             transactionDateTimeTextView = itemView.findViewById(R.id.transactionDateTimeTextView);
             transactionAmountTextView = itemView.findViewById(R.id.transactionAmountTextView);
             transactionIcon = itemView.findViewById(R.id.transactionIcon);
+            nameDateLayout = itemView.findViewById(R.id.name_date_layout);
 
         }
 

@@ -78,4 +78,13 @@
     <string name="no_goals_added">No goals added</string>
     <string name="select_due_date">Select Due Date</string>
     <string name="select_account">Select Account</string>
+    <string name="view_all">View all</string>
+    <string name="filter">Filter</string>
+    <string name="select_date_range">Select Date Range</string>
+    <string name="no_transactions_available">No transactions available</string>
+    <string name="monthly_expenses">Monthly Expenses</string>
+    <string name="select_month_year">Select Month/Year</string>
+    <string name="month_year">Month/Year</string>
+    <string name="close">close</string>
+    <string name="select_month_range">Select Month Range</string>
 </resources>

@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ public class AccountFragment extends Fragment {
 
     private TextView usernameTextView;
     private TextView userEmailTextView;
+    private ImageView profilePicture;
     private DatabaseReference databaseReference;
     private String userId;
     private NavController navController;
@@ -56,6 +58,7 @@ public class AccountFragment extends Fragment {
         // Initialize TextViews
         usernameTextView = view.findViewById(R.id.user_name);
         userEmailTextView = view.findViewById(R.id.user_email);
+        profilePicture = view.findViewById(R.id.user_image);
 
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -104,17 +107,20 @@ public class AccountFragment extends Fragment {
                 if (dataSnapshot.exists()) {
                     String name = dataSnapshot.child("username").getValue(String.class);
                     String email = dataSnapshot.child("email").getValue(String.class);
+                    Integer profileImageVectorId = dataSnapshot.child("profileImageVectorId").getValue(Integer.class);
 
                     // Save to SharedPreferences
                     SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username", name);
                     editor.putString("email", email);
+                    editor.putInt("profileImageVectorId", profileImageVectorId);
                     editor.apply();
 
                     // Display user details
                     usernameTextView.setText(name);
                     userEmailTextView.setText(email);
+                    profilePicture.setImageResource(profileImageVectorId);
                 }
             }
 
@@ -129,10 +135,12 @@ public class AccountFragment extends Fragment {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE);
         String name = sharedPreferences.getString("username", "Default Name");
         String email = sharedPreferences.getString("email", "default@example.com");
+        int profileImageVectorId = sharedPreferences.getInt("profileImageVectorId", R.drawable.avatar_batman_hero_comics);
 
         // Display user details
         usernameTextView.setText(name);
         userEmailTextView.setText(email);
+        profilePicture.setImageResource(profileImageVectorId);
     }
 
     // Method to handle logout

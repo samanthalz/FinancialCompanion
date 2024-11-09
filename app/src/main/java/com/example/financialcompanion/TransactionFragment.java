@@ -324,7 +324,7 @@ public class TransactionFragment extends Fragment {
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getSelectedIconId().observe(getViewLifecycleOwner(), iconId -> {
             this.selectedIconId = iconId;
-            Toast.makeText(getContext(), "Selected icon ID: " + iconId, Toast.LENGTH_SHORT).show(); // Show icon ID in Toast
+            //Toast.makeText(getContext(), "Selected icon ID: " + iconId, Toast.LENGTH_SHORT).show(); // Show icon ID in Toast
         });
 
     }

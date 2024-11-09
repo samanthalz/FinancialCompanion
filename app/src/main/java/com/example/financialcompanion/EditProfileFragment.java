@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +38,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,6 +52,8 @@ public class EditProfileFragment extends Fragment {
     private DatabaseReference databaseReference;
     private String userId;
     private Button submitButton;
+    private ImageView editProfileIcon;
+    private ImageView profilePicture;
     private TextView deleteAccount;
     private NavController navController;
 
@@ -78,6 +83,8 @@ public class EditProfileFragment extends Fragment {
         emailTextInput = view.findViewById(R.id.input_email);
         submitButton = view.findViewById(R.id.submit_button);
         deleteAccount = view.findViewById(R.id.delete_account_text);
+        editProfileIcon = view.findViewById(R.id.edit_profile_icon);
+        profilePicture = view.findViewById(R.id.profile_picture);
 
         // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -86,7 +93,7 @@ public class EditProfileFragment extends Fragment {
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         // Fetch user data from the database
-        databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -94,6 +101,7 @@ public class EditProfileFragment extends Fragment {
                     String username = dataSnapshot.child("username").getValue(String.class);
                     String name = dataSnapshot.child("name").getValue(String.class);
                     String email = dataSnapshot.child("email").getValue(String.class);
+                    Integer profileImageVectorId = dataSnapshot.child("profileImageVectorId").getValue(Integer.class);
 
                     // Set default text for each TextInputEditText field
                     if (username != null) {
@@ -104,6 +112,9 @@ public class EditProfileFragment extends Fragment {
                     }
                     if (email != null) {
                         emailTextInput.setText(email);
+                    }
+                    if (profileImageVectorId != null) {
+                        profilePicture.setImageResource(profileImageVectorId);
                     }
                 }
             }
@@ -161,6 +172,66 @@ public class EditProfileFragment extends Fragment {
                     })
                     .setNegativeButton("No", null) // Do nothing on "No"
                     .show();
+        });
+
+        // Set an onClickListener for the edit button
+        editProfileIcon.setOnClickListener(v -> {
+
+            // Example list of drawable resources for each account
+            List<Integer> accountDrawables = Arrays.asList(
+                    R.drawable.afro_avatar_man_male,
+                    R.drawable.afro_female_woman,
+                    R.drawable.afro_kid_child_boy,
+                    R.drawable.artist_monroe_marilyn_avatar,
+                    R.drawable.avatar_1_woman_portrait_female,
+                    R.drawable.avatar_indian_hindi_woman,
+                    R.drawable.avatar_kid_girl_child,
+                    R.drawable.avatar_muslim_man,
+                    R.drawable.avatar_russian_bear_animal,
+                    R.drawable.beard_male_hipster_man,
+                    R.drawable.boy_kid_person_avatar,
+                    R.drawable.boy_male_portrait_avatar,
+                    R.drawable.breaking_chemisrty_heisenberg_avatar_bad,
+                    R.drawable.bug_spider_avatar_insect,
+                    R.drawable.cactus_pirate_cacti_avatar,
+                    R.drawable.child_baby_toddler_kid,
+                    R.drawable.christmas_clous_santa,
+                    R.drawable.coffee_cup_zorro_avatar,
+                    R.drawable.crying_avatar_rain_cloud,
+                    R.drawable.food_avatar_avocado_scream,
+                    R.drawable.geisha_avatar_woman_japanese,
+                    R.drawable.grandma_avatar_nanny_elderly,
+                    R.drawable.halloween_movie_jason_friday,
+                    R.drawable.helmet_builder_worker,
+                    R.drawable.indian_boy_native_kid,
+                    R.drawable.indian_male_man_person,
+                    R.drawable.joker_squad_woman_avatar_suicide,
+                    R.drawable.kid_child_person_girl,
+                    R.drawable.love_addicted_draw_pencil,
+                    R.drawable.male_avatar_portrait_man,
+                    R.drawable.male_trump_avatar_president_donald_trump,
+                    R.drawable.man_comedy_actor_chaplin,
+                    R.drawable.man_portrait_old_male,
+                    R.drawable.man_sikh_indian_turban,
+                    R.drawable.monster_zombie_dead_avatar,
+                    R.drawable.muslim_avatar_paranja_woman,
+                    R.drawable.ozzy_avatar_singer_male_rock,
+                    R.drawable.person_avatar_pilot_traveller,
+                    R.drawable.person_avatar_punk_man,
+                    R.drawable.scientist_avatar_einstein_professor,
+                    R.drawable.avatar_batman_hero_comics,
+                    R.drawable.sluggard_sloth_lazybones,
+                    R.drawable.spirited_no_face_anime_away_nobody,
+                    R.drawable.ufo_space_alien_avatar,
+                    R.drawable.woman_avatar_female_girl,
+                    R.drawable.woman_avatar_female_portrait,
+                    R.drawable.woman_sister_avatar_nun,
+                    R.drawable.wrestler_man_fighter_luchador
+            );
+
+            // Show the dialog with the list of profile accounts and their drawables
+            ProfileAccountsDialogFragment dialogFragment = new ProfileAccountsDialogFragment(accountDrawables);
+            dialogFragment.show(getChildFragmentManager(), "ProfileAccountsDialog");
         });
 
         return view;
@@ -263,7 +334,6 @@ public class EditProfileFragment extends Fragment {
         startActivity(intent);
         requireActivity().finish(); // Close the current activity
     }
-
 
     private boolean validateFields() {
         // Validate username, name, and email fields

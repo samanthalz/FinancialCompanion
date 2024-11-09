@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,6 +117,15 @@ public class StoreItemsDialogFragment extends DialogFragment {
                     (int) (getResources().getDisplayMetrics().widthPixels * 0.9),
                     ViewGroup.LayoutParams.WRAP_CONTENT); // Adjust height as needed
         }
+
+        // Find the close button by its ID
+        ImageView closeButton = view.findViewById(R.id.close_btn);
+
+        // Set a click listener to dismiss the dialog
+        closeButton.setOnClickListener(v -> {
+            // Dismiss the dialog when the close button is clicked
+            dismiss();
+        });
     }
 
     public static StoreItemsDialogFragment newInstance(int petCoins) {

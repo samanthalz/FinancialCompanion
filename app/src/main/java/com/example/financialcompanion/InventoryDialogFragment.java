@@ -1,11 +1,15 @@
 package com.example.financialcompanion;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,7 +83,15 @@ public class InventoryDialogFragment extends DialogFragment {
                     (int) (getResources().getDisplayMetrics().widthPixels * 0.9),
                     ViewGroup.LayoutParams.WRAP_CONTENT); // Adjust height as needed
         }
-    }
 
+        // Find the close button by its ID
+        ImageView closeButton = view.findViewById(R.id.close_btn);
+
+        // Set a click listener to dismiss the dialog
+        closeButton.setOnClickListener(v -> {
+            // Dismiss the dialog when the close button is clicked
+            dismiss();
+        });
+    }
 }
 
