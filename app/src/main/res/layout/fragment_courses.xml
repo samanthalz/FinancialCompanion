@@ -1,14 +1,163 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CoursesFragment">
+    android:background="@color/green"
+    tools:context="com.example.financialcompanion.CoursesFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!--search bar-->
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:layout_gravity="top|center"
+        android:background="@color/white"
+        android:paddingStart="15dp"
+        android:paddingEnd="1dp">
+
+        <ImageView
+            android:id="@+id/search_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/search_courses"
+            android:src="@drawable/search" />
+
+        <EditText
+            android:id="@+id/search_bar"
+            android:layout_width="230dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/search_icon"
+            android:background="@color/white"
+            android:hint="@string/search_courses"
+            android:textSize="15sp"
+            android:inputType="text"
+            android:paddingStart="8dp"
+            android:paddingEnd="10dp"
+            android:textColorHint="@color/purple_grey" />
+
+        <ImageView
+            android:id="@+id/filter_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="260dp"
+            android:contentDescription="@string/filter"
+            android:src="@drawable/filter"
+            android:layout_marginTop="12dp"/>
+
+        <ImageView
+            android:id="@+id/star_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="300dp"
+            android:layout_marginTop="12dp"
+            android:contentDescription="@string/favourites"
+            android:src="@drawable/grey_star" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp">
+
+        <!--    category buttons-->
+
+        <Button
+            android:id="@+id/budgeting_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:padding="2dp"
+            android:layout_marginStart="10dp"
+            android:text="@string/budgeting"
+            android:textSize="13sp"
+            android:textColor="@color/purple_grey" />
+
+        <Button
+            android:id="@+id/investing_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:padding="2dp"
+            android:layout_marginStart="110dp"
+            android:textSize="13sp"
+            android:text="@string/invest"
+            android:textColor="@color/purple_grey" />
+
+        <Button
+            android:id="@+id/banking_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:padding="0dp"
+            android:layout_marginStart="210dp"
+            android:text="@string/banking"
+            android:textSize="13sp"
+            android:textColor="@color/purple_grey" />
+
+        <Button
+            android:id="@+id/planning_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="310dp"
+            android:backgroundTint="@android:color/white"
+            android:textSize="13sp"
+            android:padding="2dp"
+            android:text="@string/planning"
+            android:textColor="@color/purple_grey" />
+    </FrameLayout>
+
     <TextView
+        android:layout_width="218dp"
+        android:layout_height="84dp"
+        android:background="@color/white"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/course_intro"
+        android:padding="10dp"
+        />
+
+    <ImageView
+        android:layout_width="122dp"
+        android:layout_height="122dp"
+        android:src="@drawable/cat_pet"
+        android:layout_gravity="end"
+        android:layout_marginTop="170dp"
+        android:contentDescription="@string/pet"
+        />
+
+    <TextView
+        android:layout_width="208dp"
+        android:layout_height="27dp"
+        android:layout_gravity="start|center"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="70dp"
+        android:text="@string/recommended"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="20sp" />
+
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/courses" />
+        android:layout_height="480dp"
+        android:layout_gravity="bottom">
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/course_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+
+
+    </RelativeLayout>
+
 
 </FrameLayout>

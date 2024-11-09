@@ -13,4 +13,5 @@
     <color name="orange">#FFA500</color>  <!-- Ongoing color -->
     <color name="goal_green">#4CAF50</color>  <!-- Success color -->
     <color name="red">#F44336</color>  <!-- Did not hit goal color -->
+    <color name="purple_grey">#9D94A6</color>
 </resources>
