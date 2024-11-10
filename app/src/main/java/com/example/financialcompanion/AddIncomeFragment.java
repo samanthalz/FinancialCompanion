@@ -132,7 +132,7 @@ public class AddIncomeFragment extends Fragment {
         // Get the selected transaction type from the spinner (Income or Expense)
         String transactionType = categoryTypeSpinner.getSelectedItem().toString().toLowerCase(); // Convert to lowercase ("income" or "expense")
 
-        // Get the selected vector resource (from the adapter or directly passed if available)
+        // Get the selected vector resource
         int vectorResource  = selectedVectorResource;
 
         // Example of saving to Firebase

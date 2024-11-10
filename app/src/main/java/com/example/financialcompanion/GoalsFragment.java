@@ -13,6 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -192,7 +193,7 @@ public class GoalsFragment extends Fragment {
                                 .child(userId).child("accounts").child(account.getId()).child("transactions");
 
                         transactionsRef.orderByChild("type").equalTo("income")
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                .addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         double accountTotal = 0.0;
@@ -205,6 +206,9 @@ public class GoalsFragment extends Fragment {
                                         }
 
                                         totalSavedAmount[0] += accountTotal;
+                                        goalsAdapter.setTotalSaved(totalSavedAmount[0]);
+
+                                        Log.e("GoalStatusUpdate","total is" + totalSavedAmount[0]);
 
                                         if (totalSavedAmount[0] >= goal.getAmount()) {
                                             status[0] = "Achieved";
@@ -227,6 +231,36 @@ public class GoalsFragment extends Fragment {
                                     }
                                 });
                     }
+                }
+                for (Account account : goal.getGoalsAccounts()) {
+                    DatabaseReference transactionsRef = FirebaseDatabase.getInstance().getReference("users")
+                            .child(userId).child("accounts").child(account.getId()).child("transactions");
+
+                    transactionsRef.orderByChild("type").equalTo("income")
+                            .addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    double accountTotal = 0.0;
+
+                                    for (DataSnapshot transactionSnapshot : dataSnapshot.getChildren()) {
+                                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+                                        if (transaction != null) {
+                                            accountTotal += transaction.getAmount();
+                                        }
+                                    }
+
+                                    totalSavedAmount[0] += accountTotal;
+                                    goalsAdapter.setTotalSaved(totalSavedAmount[0]);
+
+                                    Log.e("GoalStatusUpdate","total is" + totalSavedAmount[0]);
+                                    goalsAdapter.updateGoalsList(goalsList);  // Refresh adapter after updating
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    Log.e("GoalStatusUpdate", "Error fetching transactions: " + databaseError.getMessage());
+                                }
+                            });
                 }
             }
 

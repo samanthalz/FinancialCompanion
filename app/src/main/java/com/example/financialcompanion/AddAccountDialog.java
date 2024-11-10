@@ -146,6 +146,16 @@ public class AddAccountDialog extends DialogFragment {
             String accountName = Objects.requireNonNull(accountNameInput.getText()).toString().trim();
             String initialAmountStr = Objects.requireNonNull(initialAmountInput.getText()).toString().trim();
 
+            float initialAmount = 0f;
+            if (!initialAmountStr.isEmpty()) {
+                try {
+                    initialAmount = Float.parseFloat(initialAmountStr); // Parse as float
+                } catch (NumberFormatException e) {
+                    // Handle the exception (e.g., show a message to the user)
+                    Log.e("ParseError", "Invalid number format in initialAmountInput");
+                }
+            }
+
             if (accountName.isEmpty() || initialAmountStr.isEmpty() || selectedIconImageView == null) {
                 Toast.makeText(getContext(), "Please fill in all fields and select an icon", Toast.LENGTH_SHORT).show();
                 return;
@@ -154,13 +164,13 @@ public class AddAccountDialog extends DialogFragment {
             if (accountToEdit != null) {
                 // Update the existing account
                 accountToEdit.setAccountName(String.valueOf(accountNameInput.getText()));
-                accountToEdit.setBalance(initialAmountInput.getText().length());
+                accountToEdit.setBalance(initialAmount);
                 accountToEdit.setIcon_id((Integer) selectedIconImageView.getTag());
 
                 // Update the account in the database
                 updateAccountInDatabase(accountToEdit);
             } else {
-                double initialAmount = Double.parseDouble(initialAmountStr);
+                initialAmount = Float.parseFloat(initialAmountStr);
                 String accountId = UUID.randomUUID().toString(); // Generate unique ID for the account
                 int selectedIconResId = (int) selectedIconImageView.getTag(); // Retrieve the icon ID from the tag
 

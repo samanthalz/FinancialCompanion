@@ -96,6 +96,20 @@ public class IncomeFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchCategories(userId);
+        // Set up the FragmentResultListener to listen for the refresh signal
+        getParentFragmentManager().setFragmentResultListener("refreshRequest", getViewLifecycleOwner(), (requestKey, result) -> {
+            // Check if the refresh signal is received
+            if (result.containsKey("refresh")) {
+                // Refresh the RecyclerView here
+                fetchCategories(userId);
+            }
+        });
+    }
+
     private void fetchCategories(String userId) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users")
                 .child(userId).child("categories").child("income");

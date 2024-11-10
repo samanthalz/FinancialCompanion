@@ -27,6 +27,7 @@ import java.util.Objects;
 public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHolder> {
 
     private List<Goal> goalsList;
+    private TextView totalSavedTextView;
 
     // Constructor to initialize goals list
     public GoalsAdapter(List<Goal> goalsList) {
@@ -34,11 +35,11 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
     }
 
     // ViewHolder class for holding individual goal views
-    public static class GoalViewHolder extends RecyclerView.ViewHolder {
+    public class GoalViewHolder extends RecyclerView.ViewHolder {
         public TextView labelTextView;
         public TextView dueDateTextView;
         public TextView statusTextView;
-        public TextView totalSavedTextView;
+        //public TextView totalSavedTextView;
         public TextView goalAmountTextView;
         public TextView descriptionLabelTextView;
         public TextView descriptionTextView;
@@ -49,7 +50,8 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
             labelTextView = itemView.findViewById(R.id.goalLabel);
             dueDateTextView = itemView.findViewById(R.id.goalDueDate);
             statusTextView = itemView.findViewById(R.id.goalStatus);
-            totalSavedTextView = itemView.findViewById(R.id.goalTotalSaved).findViewById(R.id.goalAmount); // Update to match layout
+            //totalSavedTextView = itemView.findViewById(R.id.goalTotalSaved).findViewById(R.id.goalAmount); // Update to match layout
+            totalSavedTextView = itemView.findViewById(R.id.goalTotalSavedText);
             goalAmountTextView = itemView.findViewById(R.id.goalAmount);
             descriptionLabelTextView = itemView.findViewById(R.id.goalDescriptionLabel);
             descriptionTextView = itemView.findViewById(R.id.goalDescription);
@@ -174,6 +176,12 @@ public class GoalsAdapter extends RecyclerView.Adapter<GoalsAdapter.GoalViewHold
     @SuppressLint("NotifyDataSetChanged")
     public void setGoals(List<Goal> newGoalList) {
         this.goalsList = newGoalList;
+        notifyDataSetChanged();
+    }
+
+    @SuppressLint({"NotifyDataSetChanged", "DefaultLocale"})
+    public void setTotalSaved(double totalSavedAmount) {
+        totalSavedTextView.setText(String.format("RM%.2f", totalSavedAmount));
         notifyDataSetChanged();
     }
 

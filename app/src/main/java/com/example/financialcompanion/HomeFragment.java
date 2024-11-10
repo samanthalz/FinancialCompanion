@@ -32,6 +32,7 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -400,128 +401,142 @@ public class HomeFragment extends Fragment {
                 .child(userId)
                 .child("accounts");
 
-        userAccountsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        final float[] totalIncome = {0f};
+        final float[] totalExpense = {0f};
+
+        userAccountsRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot accountsSnapshot) {
-                for (DataSnapshot accountSnapshot : accountsSnapshot.getChildren()) {
-                    String accountId = accountSnapshot.getKey(); // Get each account ID
+            public void onChildAdded(@NonNull DataSnapshot accountSnapshot, @Nullable String previousChildName) {
+                String accountId = accountSnapshot.getKey(); // Get each account ID
 
-                    // Reference to the transactions under the current account
-                    DatabaseReference transactionsRef = accountSnapshot.child("transactions").getRef();
+                // Reference to the transactions under the current account
+                DatabaseReference transactionsRef = accountSnapshot.child("transactions").getRef();
 
-                    transactionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot transactionsSnapshot) {
-                            // Get the current month and year
-                            Calendar calendar = Calendar.getInstance();
-                            int currentYear = calendar.get(Calendar.YEAR);
-                            int currentMonth = calendar.get(Calendar.MONTH); // January is 0, December is 11
+                transactionsRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot transactionsSnapshot) {
+                        // Get the current month and year
+                        Calendar calendar = Calendar.getInstance();
+                        int currentYear = calendar.get(Calendar.YEAR);
+                        int currentMonth = calendar.get(Calendar.MONTH); // January is 0, December is 11
 
-                            // Map to hold total expenses by category
-                            Map<String, Float> categoryExpenseMap = new HashMap<>();
-                            // Initialize variables to hold total income and expenses
-                            float totalIncome = 0f;
-                            float totalExpense = 0f;
+                        // Map to hold total expenses by category
+                        Map<String, Float> categoryExpenseMap = new HashMap<>();
+                        // Initialize variables to hold total income and expenses
 
-                            for (DataSnapshot transactionSnapshot : transactionsSnapshot.getChildren()) {
-                                // Access transaction data
-                                String transactionId = transactionSnapshot.getKey(); // Transaction ID
-                                Integer amountInt = transactionSnapshot.child("amount").getValue(Integer.class);
-                                Integer categoryId = transactionSnapshot.child("categoryId").getValue(Integer.class);
-                                String type = transactionSnapshot.child("type").getValue(String.class); // Assuming type is stored
 
-                                // Initialize a variable to hold the timestamp
-                                Long timestamp = null;
+                        for (DataSnapshot transactionSnapshot : transactionsSnapshot.getChildren()) {
+                            // Access transaction data
+                            String transactionId = transactionSnapshot.getKey(); // Transaction ID
+                            Integer amountInt = transactionSnapshot.child("amount").getValue(Integer.class);
+                            Integer categoryId = transactionSnapshot.child("categoryId").getValue(Integer.class);
+                            String type = transactionSnapshot.child("type").getValue(String.class); // Assuming type is stored
 
-                                // Check if "date" node exists and retrieve the timestamp
-                                if (transactionSnapshot.child("date").exists()) {
-                                    timestamp = transactionSnapshot.child("date").getValue(Long.class); // Retrieve as long timestamp
-                                }
+                            // Initialize a variable to hold the timestamp
+                            Long timestamp = null;
 
-                                Log.d("TransactionDate", "Retrieved Timestamp: " + timestamp + ", Current Month: " + currentMonth + ", Current Year: " + currentYear);
+                            // Check if "date" node exists and retrieve the timestamp
+                            if (transactionSnapshot.child("date").exists()) {
+                                timestamp = transactionSnapshot.child("date").getValue(Long.class); // Retrieve as long timestamp
+                            }
 
-                                // Check if the timestamp was retrieved successfully
-                                if (timestamp != null) {
-                                    // Convert the timestamp to Calendar object for easier date manipulation
-                                    Calendar transactionDate = Calendar.getInstance();
-                                    transactionDate.setTimeInMillis(timestamp);
+                            Log.d("TransactionDate", "Retrieved Timestamp: " + timestamp + ", Current Month: " + currentMonth + ", Current Year: " + currentYear);
 
-                                    int transactionMonth = transactionDate.get(Calendar.MONTH);  // Get the month from the timestamp
-                                    int transactionYear = transactionDate.get(Calendar.YEAR);   // Get the year from the timestamp
+                            // Check if the timestamp was retrieved successfully
+                            if (timestamp != null) {
+                                // Convert the timestamp to Calendar object for easier date manipulation
+                                Calendar transactionDate = Calendar.getInstance();
+                                transactionDate.setTimeInMillis(timestamp);
 
-                                    // Log the retrieved date
-                                    Log.d("TransactionDate", "Transaction Date: " + transactionDate.getTime().toString());
+                                int transactionMonth = transactionDate.get(Calendar.MONTH);  // Get the month from the timestamp
+                                int transactionYear = transactionDate.get(Calendar.YEAR);   // Get the year from the timestamp
 
-                                    // Check if the transaction is from the current month and year
-                                    if (transactionMonth == currentMonth && transactionYear == currentYear) {
-                                        // The logic to check for transaction type and update the map
-                                        if ("expense".equals(type)) {
-                                            // Check if the categoryId and amountInt are not null
-                                            if (categoryId != null && amountInt != null) {
-                                                // Ensure category is not null before putting into the map
-                                                String category = String.valueOf(categoryId); // Convert categoryId to String if needed
+                                // Log the retrieved date
+                                Log.d("TransactionDate", "Transaction Date: " + transactionDate.getTime().toString());
 
-                                                // Use Optional to safely handle the update
-                                                Float currentAmount = Optional.ofNullable(categoryExpenseMap.get(category)).orElse(0f);
-                                                categoryExpenseMap.put(category, currentAmount + amountInt.floatValue());
+                                // Check if the transaction is from the current month and year
+                                if (transactionMonth == currentMonth && transactionYear == currentYear) {
+                                    // The logic to check for transaction type and update the map
+                                    if ("expense".equals(type)) {
+                                        // Check if the categoryId and amountInt are not null
+                                        if (categoryId != null && amountInt != null) {
+                                            // Ensure category is not null before putting into the map
+                                            String category = String.valueOf(categoryId); // Convert categoryId to String if needed
 
-                                                // Update totalExpense
-                                                totalExpense += amountInt.floatValue();
+                                            // Use Optional to safely handle the update
+                                            Float currentAmount = Optional.ofNullable(categoryExpenseMap.get(category)).orElse(0f);
+                                            categoryExpenseMap.put(category, currentAmount + amountInt.floatValue());
 
-                                                // Log the current state of categoryExpenseMap
-                                                Log.d("CategoryExpenseMap", "Current categoryExpenseMap: " + categoryExpenseMap.toString());
-                                            } else {
-                                                // Handle the case where categoryId or amountInt is null
-                                                Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has null category or amount.");
-                                            }
-                                        } else if ("income".equals(type)) {
-                                            // Sum up the total income
-                                            if (amountInt != null) {
-                                                totalIncome += amountInt.floatValue();
-                                            } else {
-                                                // Handle the case where amountInt is null
-                                                Log.w("TransactionWarning", "Income with ID: " + transactionId + " has null amount.");
-                                            }
+                                            // Update totalExpense
+                                            totalExpense[0] += amountInt.floatValue();
+
+                                            // Log the current state of categoryExpenseMap
+                                            Log.d("CategoryExpenseMap", "Current categoryExpenseMap: " + categoryExpenseMap.toString());
+                                        } else {
+                                            // Handle the case where categoryId or amountInt is null
+                                            Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has null category or amount.");
+                                        }
+                                    } else if ("income".equals(type)) {
+                                        // Sum up the total income
+                                        if (amountInt != null) {
+                                            totalIncome[0] += amountInt.floatValue();
+                                        } else {
+                                            // Handle the case where amountInt is null
+                                            Log.w("TransactionWarning", "Income with ID: " + transactionId + " has null amount.");
                                         }
                                     }
-                                } else {
-                                    // Handle case when date is missing
-                                    Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has missing date.");
                                 }
-                            }
-
-                            // Log the size of expenseCategories
-                            if (expenseCategories == null || expenseCategories.isEmpty()) {
-                                Log.d("Expense2", "Expense categories are null or empty.");
                             } else {
-                                Log.d("Expense2", "Expense categories have " + expenseCategories.size() + " items.");
+                                // Handle case when date is missing
+                                Log.w("TransactionWarning", "Transaction with ID: " + transactionId + " has missing date.");
                             }
-
-                            // Pass the category expense map to setup the pie chart
-                            if (!categoryExpenseMap.isEmpty()) {
-                                setupPieChart(categoryExpenseMap, expenseCategories);
-                            } else {
-                                // Empty case: Show "No Expense" with a single color
-                                setupPieChart(new HashMap<>(), expenseCategories);
-                            }
-
-                            // Update the UI with total income and expenses
-                            updateUI(totalIncome, totalExpense);
                         }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
+                        // Log the size of expenseCategories
+                        if (expenseCategories == null || expenseCategories.isEmpty()) {
+                            Log.d("Expense2", "Expense categories are null or empty.");
+                        } else {
+                            Log.d("Expense2", "Expense categories have " + expenseCategories.size() + " items.");
                         }
-                    });
-                }
+
+                        // Pass the category expense map to setup the pie chart
+                        if (!categoryExpenseMap.isEmpty()) {
+                            setupPieChart(categoryExpenseMap, expenseCategories);
+                        }
+
+                        // Update the UI with total income and expenses
+                        updateUI(totalIncome[0], totalExpense[0]);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Handle errors
+                    }
+                });
             }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot accountSnapshot, @Nullable String previousChildName) {
+                // Handle updates to existing accounts
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot accountSnapshot) {
+                // Handle account removal
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot accountSnapshot, @Nullable String previousChildName) {
+                // Handle account move (rarely used)
+            }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors
+                // Handle any errors with the listener
             }
         });
     }
+
 
     private void updateUI(float totalIncome, float totalExpense) {
         // Create a fade-in animation
@@ -684,38 +699,35 @@ public class HomeFragment extends Fragment {
 
     public static int[] getPieColors() {
         return new int[] {
-                Color.parseColor("#FF7043"), // Coral (Warm)
-                Color.parseColor("#FF8A65"), // Light Deep Orange
-                Color.parseColor("#FFB74D"), // Light Orange
+                Color.parseColor("#FF9100"), // Bright Orange
                 Color.parseColor("#FFC107"), // Amber
                 Color.parseColor("#FFEB3B"), // Bright Yellow
-                Color.parseColor("#CDDC39"), // Lime
-                Color.parseColor("#8BC34A"), // Light Green
-                Color.parseColor("#4CAF50"), // Green
-                Color.parseColor("#388E3C"), // Dark Green
-                Color.parseColor("#009688"), // Teal
-                Color.parseColor("#00BCD4"), // Cyan
-                Color.parseColor("#03A9F4"), // Light Blue
-                Color.parseColor("#2196F3"), // Blue
-                Color.parseColor("#1976D2"), // Dark Blue
-                Color.parseColor("#3F51B5"), // Indigo
-                Color.parseColor("#673AB7"), // Deep Purple
-                Color.parseColor("#8E24AA"), // Rich Purple
-                Color.parseColor("#9C27B0"), // Purple
-                Color.parseColor("#D5006D"), // Bright Pink A400
-                Color.parseColor("#F50057"), // Bright Pink
-                Color.parseColor("#E91E63"), // Pink
+                Color.parseColor("#FF8A65"), // Light Deep Orange
+                Color.parseColor("#FF5722"), // Deep Orange
                 Color.parseColor("#F44336"), // Red
                 Color.parseColor("#EF5350"), // Light Red
-                Color.parseColor("#FF5722"), // Deep Orange
-                Color.parseColor("#FF9100"), // Bright Orange
-                Color.parseColor("#FFAB40"), // Soft Orange
+                Color.parseColor("#E91E63"), // Pink
+                Color.parseColor("#D5006D"), // Bright Pink A400
+                Color.parseColor("#9C27B0"), // Purple
+                Color.parseColor("#8E24AA"), // Rich Purple
+                Color.parseColor("#673AB7"), // Indigo
+                Color.parseColor("#3F51B5"), // Dark Blue
+                Color.parseColor("#2196F3"), // Blue
+                Color.parseColor("#03A9F4"), // Light Blue
+                Color.parseColor("#00BCD4"), // Cyan
+                Color.parseColor("#009688"), // Teal
+                Color.parseColor("#388E3C"),// Dark Green
+                Color.parseColor("#4CAF50"), // Green
+                Color.parseColor("#8BC34A"), // Light Green
+                Color.parseColor("#CDDC39"), // Lime
                 Color.parseColor("#795548"), // Brown
                 Color.parseColor("#8D6E63"), // Light Brown
                 Color.parseColor("#BDBDBD"), // Grey
                 Color.parseColor("#9E9E9E"), // Dark Grey
                 Color.parseColor("#607D8B"), // Blue Grey
-                Color.parseColor("#546E7A")  // Slate Blue Grey
+                Color.parseColor("#546E7A")// Slate Blue Grey
+
+
         };
     }
 }

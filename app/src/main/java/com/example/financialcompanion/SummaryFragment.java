@@ -402,7 +402,7 @@ public class SummaryFragment extends Fragment {
             colorList.add(color);
         }
 
-        Collections.shuffle(colorList);
+        //Collections.shuffle(colorList);
 
         // Assign colors to each entry
         dataSet.setColors(colorList);
@@ -413,38 +413,35 @@ public class SummaryFragment extends Fragment {
 
     public static int[] getPieColors() {
         return new int[] {
-                Color.parseColor("#FF7043"), // Coral (Warm)
-                Color.parseColor("#FF8A65"), // Light Deep Orange
-                Color.parseColor("#FFB74D"), // Light Orange
+                Color.parseColor("#FF9100"), // Bright Orange
                 Color.parseColor("#FFC107"), // Amber
                 Color.parseColor("#FFEB3B"), // Bright Yellow
-                Color.parseColor("#CDDC39"), // Lime
-                Color.parseColor("#8BC34A"), // Light Green
-                Color.parseColor("#4CAF50"), // Green
-                Color.parseColor("#388E3C"), // Dark Green
-                Color.parseColor("#009688"), // Teal
-                Color.parseColor("#00BCD4"), // Cyan
-                Color.parseColor("#03A9F4"), // Light Blue
-                Color.parseColor("#2196F3"), // Blue
-                Color.parseColor("#1976D2"), // Dark Blue
-                Color.parseColor("#3F51B5"), // Indigo
-                Color.parseColor("#673AB7"), // Deep Purple
-                Color.parseColor("#8E24AA"), // Rich Purple
-                Color.parseColor("#9C27B0"), // Purple
-                Color.parseColor("#D5006D"), // Bright Pink A400
-                Color.parseColor("#F50057"), // Bright Pink
-                Color.parseColor("#E91E63"), // Pink
+                Color.parseColor("#FF8A65"), // Light Deep Orange
+                Color.parseColor("#FF5722"), // Deep Orange
                 Color.parseColor("#F44336"), // Red
                 Color.parseColor("#EF5350"), // Light Red
-                Color.parseColor("#FF5722"), // Deep Orange
-                Color.parseColor("#FF9100"), // Bright Orange
-                Color.parseColor("#FFAB40"), // Soft Orange
+                Color.parseColor("#E91E63"), // Pink
+                Color.parseColor("#D5006D"), // Bright Pink A400
+                Color.parseColor("#9C27B0"), // Purple
+                Color.parseColor("#8E24AA"), // Rich Purple
+                Color.parseColor("#673AB7"), // Indigo
+                Color.parseColor("#3F51B5"), // Dark Blue
+                Color.parseColor("#2196F3"), // Blue
+                Color.parseColor("#03A9F4"), // Light Blue
+                Color.parseColor("#00BCD4"), // Cyan
+                Color.parseColor("#009688"), // Teal
+                Color.parseColor("#388E3C"),// Dark Green
+                Color.parseColor("#4CAF50"), // Green
+                Color.parseColor("#8BC34A"), // Light Green
+                Color.parseColor("#CDDC39"), // Lime
                 Color.parseColor("#795548"), // Brown
                 Color.parseColor("#8D6E63"), // Light Brown
                 Color.parseColor("#BDBDBD"), // Grey
                 Color.parseColor("#9E9E9E"), // Dark Grey
                 Color.parseColor("#607D8B"), // Blue Grey
-                Color.parseColor("#546E7A")  // Slate Blue Grey
+                Color.parseColor("#546E7A")// Slate Blue Grey
+
+
         };
     }
 }

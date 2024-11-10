@@ -33,8 +33,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -142,7 +144,7 @@ public class BudgetFragment extends Fragment {
                             // Initialize an empty list to hold budget items
                             List<Budget> budgets = new ArrayList<>();
                             double totalBudget = 0;
-                            double totalSpent = 0;
+                            final double[] totalSpent = {0};
 
                             // Loop through the budgets and calculate total budget and total spent
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -151,24 +153,86 @@ public class BudgetFragment extends Fragment {
                                     totalBudget += budget.getAmount();
                                     budgets.add(budget); // Add budget to the list
 
-                                    // Manually access the transactions from the snapshot and calculate total spent
-                                    DataSnapshot transactionsSnapshot = snapshot.child("transactions");
-                                    List<Transaction> transactions = new ArrayList<>();
-                                    for (DataSnapshot transactionSnapshot : transactionsSnapshot.getChildren()) {
-                                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
-                                        if (transaction != null) {
-                                            transactions.add(transaction);
-                                        }
-                                    }
+//                                    // Manually access the transactions from the snapshot and calculate total spent
+//                                    DataSnapshot transactionsSnapshot = snapshot.child("transactions");
+//                                    List<Transaction> transactions = new ArrayList<>();
+//                                    for (DataSnapshot transactionSnapshot : transactionsSnapshot.getChildren()) {
+//                                        Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+//                                        if (transaction != null) {
+//                                            transactions.add(transaction);
+//                                        }
+//                                    }
+//
+//                                    // Calculate total spent using the list of transactions
+//                                    totalSpent += getSpentAmount(transactions);
+                                    // Reference to user's categories and accounts in the database
+                                    DatabaseReference categoriesRef = mDatabase.child("users").child(userId).child("categories").child("expense");
+                                    DatabaseReference accountsRef = mDatabase.child("users").child(userId).child("accounts");
 
-                                    // Calculate total spent using the list of transactions
-                                    totalSpent += getSpentAmount(transactions);
+                                    // Map to store categoryId -> categoryName for expense categories
+                                    Map<String, String> categoryMap = new HashMap<>();
+
+                                    categoriesRef.addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot categoriesSnapshot) {
+                                            // Populate the category map with categoryId as the key and categoryName as the value
+                                            for (DataSnapshot categorySnapshot : categoriesSnapshot.getChildren()) {
+                                                String categoryId = categorySnapshot.getKey();
+                                                String categoryName = categorySnapshot.child("name").getValue(String.class);
+
+                                                if (categoryId != null && categoryName != null) {
+                                                    categoryMap.put(categoryId, categoryName);
+                                                }
+                                            }
+
+                                            // After loading categories, access accounts and filter transactions based on budget category
+                                            accountsRef.addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot accountsSnapshot) {
+                                                    List<Transaction> matchingTransactions = new ArrayList<>();
+
+                                                    for (DataSnapshot accountSnapshot : accountsSnapshot.getChildren()) {
+                                                        // Access each account's transactions
+                                                        DataSnapshot transactionsSnapshot = accountSnapshot.child("transactions");
+
+                                                        for (DataSnapshot transactionSnapshot : transactionsSnapshot.getChildren()) {
+                                                            Transaction transaction = transactionSnapshot.getValue(Transaction.class);
+
+                                                            if (transaction != null && "expense".equals(transaction.getType())) {
+                                                                // Retrieve the category name using categoryId from the transaction
+                                                                String transactionCategoryName = categoryMap.get(transaction.getCategoryId());
+
+                                                                // Check if the transaction's category name matches the budget category name
+                                                                if (budget.getCategory().equals(transactionCategoryName)) {
+                                                                    matchingTransactions.add(transaction);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // Calculate total spent based on matching transactions
+                                                    totalSpent[0] = getSpentAmount(matchingTransactions);
+                                                    // Use totalSpent as needed (e.g., update UI or save to database)
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                    Log.e("DatabaseError", "Failed to retrieve accounts: " + databaseError.getMessage());
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            Log.e("DatabaseError", "Failed to retrieve categories: " + databaseError.getMessage());
+                                        }
+                                    });
                                 }
                             }
 
                             // Update the UI with total budget and spent amounts
                             totalBudgetAmount.setText("RM " + totalBudget);
-                            totalSpentAmount.setText("RM " + totalSpent);
+                            totalSpentAmount.setText("RM " + totalSpent[0]);
 
                             // Log to check how many budgets were added to the list
                             Log.d("BudgetFragment", "Total budgets added: " + budgets.size());
@@ -222,7 +286,7 @@ public class BudgetFragment extends Fragment {
         // Sum up the spent amounts for each transaction
         if (transactions != null) {
             for (Transaction transaction : transactions) {
-                totalSpent += transaction.getAmount(); // Assuming transaction has an 'amount' field
+                totalSpent += transaction.getAmount();
             }
         }
 
