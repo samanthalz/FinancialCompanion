@@ -54,6 +54,9 @@
         <action
             android:id="@+id/action_coursesFragment_to_addBudgetFragment"
             app:destination="@id/addBudgetFragment" />
+        <action
+            android:id="@+id/action_coursesFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
     </fragment>
 
     <fragment

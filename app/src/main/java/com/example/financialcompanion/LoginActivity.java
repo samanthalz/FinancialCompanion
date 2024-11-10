@@ -104,8 +104,12 @@ public class LoginActivity extends AppCompatActivity {
     // Validate Email
     public Boolean validateEmail() {
         String email = loginEmail.getText().toString().trim();
+        String emailPattern = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}";
         if (email.isEmpty()) {
             loginEmail.setError("Email cannot be empty");
+            return false;
+        } else if (!email.matches(emailPattern)) {
+            loginEmail.setError("Invalid email format");
             return false;
         } else {
             loginEmail.setError(null);
